@@ -299,18 +299,38 @@ function App() {
     }
   });
 
-  // Login wizard step: 'button' | 'credentials' | 'otp'
-  const [loginStep, setLoginStep] = useState('button');
+  // Login wizard step: 'credentials' | 'otp'
+  const [loginStep, setLoginStep] = useState('credentials');
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const [loginPhone, setLoginPhone] = useState('');
+  const [loginPhone, setLoginPhone] = useState('9876543210');
   const [loginOtp, setLoginOtp] = useState('');
   const [loginError, setLoginError] = useState('');
   const [generatedOtp, setGeneratedOtp] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleGoogleLogin = () => {
-    setLoginStep('credentials');
+  const handleSocialLogin = (provider) => {
+    let email = 'jayesh@acme.com';
+    let phone = '9876543210';
+    if (provider === 'Facebook') {
+      email = 'amit.verma@gmail.com';
+      phone = '9123456789';
+    }
+    if (provider === 'Apple') {
+      email = 'apple-user@gmail.com';
+      phone = '9345678901';
+    }
+    
+    setLoginEmail(email);
+    setLoginPassword('socialpassword123');
+    setLoginPhone(phone);
+    
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(otp);
     setLoginError('');
+    setLoginStep('otp');
+    console.log(`[${provider} Auth OTP Code]: ${otp}`);
+    alert(`[${provider} Verification Code sent to +91 ${phone}]: Use code ${otp} to verify.`);
   };
 
   const handleCredentialsSubmit = (e) => {
@@ -323,19 +343,33 @@ function App() {
       setLoginError('Password must be at least 6 characters long');
       return;
     }
-    if (!loginPhone.trim() || loginPhone.length < 10) {
-      setLoginError('Please enter a valid 10-digit phone number');
-      return;
-    }
-
-    // Simulate sending OTP code
+    
+    // Simulate sending OTP code to user's registered phone
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedOtp(otp);
     setLoginError('');
     setLoginStep('otp');
-    // Display in log & alert to help testing
-    console.log(`[Google Auth OTP Code]: ${otp}`);
-    alert(`[Google Auth Code sent to ${loginPhone}]: Use code ${otp} to verify.`);
+    console.log(`[Email Auth OTP Code]: ${otp}`);
+    alert(`[Verification Code sent to +91 ${loginPhone}]: Use code ${otp} to verify.`);
+  };
+
+  const handleCreateAccountTrigger = (e) => {
+    e.preventDefault();
+    if (!loginEmail.trim() || !loginEmail.includes('@')) {
+      setLoginError('Please enter a valid Gmail / Email address to create an account');
+      return;
+    }
+    if (!loginPassword.trim() || loginPassword.length < 6) {
+      setLoginError('Password must be at least 6 characters long');
+      return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(otp);
+    setLoginError('');
+    setLoginStep('otp');
+    console.log(`[Registration OTP Code]: ${otp}`);
+    alert(`[Account Registration Code sent to +91 ${loginPhone}]: Use code ${otp} to verify.`);
   };
 
   const handleOtpVerify = (e) => {
@@ -381,10 +415,9 @@ function App() {
       setOrderHistory(loggedUser.orders || []);
       
       // Reset wizard fields
-      setLoginStep('button');
+      setLoginStep('credentials');
       setLoginEmail('');
       setLoginPassword('');
-      setLoginPhone('');
       setLoginOtp('');
       setLoginError('');
       
@@ -400,7 +433,7 @@ function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUser(null);
-    setLoginStep('button');
+    setLoginStep('credentials');
     setView('home');
   };
 
@@ -594,6 +627,7 @@ function App() {
         onToggleTheme={handleToggleTheme}
         isLoggedIn={isLoggedIn}
         user={user}
+        onLogout={handleLogout}
       />
 
       {/* 3. Main Routing Section */}
@@ -806,99 +840,114 @@ function App() {
             <div className="container animate-fade-in" style={styles.loginContainer}>
               <div style={styles.loginCard} className="glass-panel">
                 
-                {/* 1. Google Button Step */}
-                {loginStep === 'button' && (
-                  <>
-                    {/* Custom Brand Logo */}
-                    <div style={styles.loginLogoWrapper}>
-                      <svg style={styles.loginLogo} viewBox="0 0 100 60">
-                        <path 
-                          d="M 50,30 C 35,15 20,15 20,30 C 20,45 35,45 50,30 C 65,15 80,15 80,30 C 80,45 65,45 50,30 Z" 
-                          fill="none" 
-                          stroke="url(#logoGrad)" 
-                          strokeWidth="7" 
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <span style={styles.loginBrandText}>InfiStyle</span>
-                    </div>
-                    <h2 style={styles.loginTitle}>Welcome to InfiStyle</h2>
-                    <p style={styles.loginSubtitle}>Sign in to customize prints, track order status, and manage your designs.</p>
-                    
-                    <button 
-                      onClick={handleGoogleLogin} 
-                      style={styles.googleBtn} 
-                      className="google-btn"
-                    >
-                      <svg style={styles.googleIcon} viewBox="0 0 24 24">
-                        <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.57 15.02 1 12 1 7.35 1 3.37 3.67 1.39 7.56l3.78 2.93c.9-2.7 3.41-4.45 6.83-4.45z"/>
-                        <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.89c2.18-2.01 3.7-4.99 3.7-8.62z"/>
-                        <path fill="#FBBC05" d="M5.17 10.49c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.39 7.56c-.89 1.77-1.39 3.77-1.39 5.88s.5 4.11 1.39 5.88l3.78-2.93c-.24-.72-.38-1.49-.38-2.29z"/>
-                        <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.92l-3.73-2.89c-1.03.69-2.35 1.1-4.23 1.1-3.42 0-5.93-1.75-6.83-4.45l-3.78 2.93C3.37 20.33 7.35 23 12 23z"/>
-                      </svg>
-                      <span>Continue with Google</span>
-                    </button>
-                    
-                    <div style={styles.loginDivider}>
-                      <span style={styles.loginDividerText}>SECURE AUTHENTICATION</span>
-                    </div>
-                    <p style={styles.loginFooterText}>
-                      By continuing, you agree to InfiStyle's Terms of Service and Privacy Policy.
-                    </p>
-                  </>
-                )}
-
-                {/* 2. Credentials Form Step */}
+                {/* 1. Sign In credentials form & Social buttons */}
                 {loginStep === 'credentials' && (
                   <div style={{ width: '100%', textAlign: 'left' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-                      <svg style={{ width: '32px', height: '32px' }} viewBox="0 0 24 24">
-                        <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.57 15.02 1 12 1 7.35 1 3.37 3.67 1.39 7.56l3.78 2.93c.9-2.7 3.41-4.45 6.83-4.45z"/>
-                        <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.89c2.18-2.01 3.7-4.99 3.7-8.62z"/>
-                        <path fill="#FBBC05" d="M5.17 10.49c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.39 7.56c-.89 1.77-1.39 3.77-1.39 5.88s.5 4.11 1.39 5.88l3.78-2.93c-.24-.72-.38-1.49-.38-2.29z"/>
-                        <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.92l-3.73-2.89c-1.03.69-2.35 1.1-4.23 1.1-3.42 0-5.93-1.75-6.83-4.45l-3.78 2.93C3.37 20.33 7.35 23 12 23z"/>
-                      </svg>
+                    <h2 style={{ fontSize: '24px', fontWeight: '800', color: 'var(--color-text-dark)', marginBottom: '8px', lineHeight: '1.2', letterSpacing: '-0.5px' }}>
+                      Three great brands. One account.
+                    </h2>
+                    <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', lineHeight: '1.5', marginBottom: '24px' }}>
+                      Sign in to <strong>VistaPrint</strong>, <strong>VistaCreate</strong>, or <strong>99designs by Vista</strong> and we’ll sync your accounts. If you have multiple accounts, including VistaPrint, sign in with your VistaPrint account.
+                    </p>
+
+                    {/* Social Buttons Stacked */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                      <button 
+                        type="button"
+                        onClick={() => handleSocialLogin('Google')}
+                        className="google-btn social-btn"
+                        style={styles.socialBtn}
+                      >
+                        <svg style={styles.socialIcon} viewBox="0 0 24 24">
+                          <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.57 15.02 1 12 1 7.35 1 3.37 3.67 1.39 7.56l3.78 2.93c.9-2.7 3.41-4.45 6.83-4.45z"/>
+                          <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.89c2.18-2.01 3.7-4.99 3.7-8.62z"/>
+                          <path fill="#FBBC05" d="M5.17 10.49c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.39 7.56c-.89 1.77-1.39 3.77-1.39 5.88s.5 4.11 1.39 5.88l3.78-2.93c-.24-.72-.38-1.49-.38-2.29z"/>
+                          <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.92l-3.73-2.89c-1.03.69-2.35 1.1-4.23 1.1-3.42 0-5.93-1.75-6.83-4.45l-3.78 2.93C3.37 20.33 7.35 23 12 23z"/>
+                        </svg>
+                        <span>Continue with Google</span>
+                      </button>
+
+                      <button 
+                        type="button"
+                        onClick={() => handleSocialLogin('Facebook')}
+                        className="facebook-btn social-btn"
+                        style={{ ...styles.socialBtn, border: '1.5px solid #1877f2', color: '#1877f2' }}
+                      >
+                        <svg style={styles.socialIcon} viewBox="0 0 24 24" fill="#1877f2">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        <span>Continue with Facebook</span>
+                      </button>
+
+                      <button 
+                        type="button"
+                        onClick={() => handleSocialLogin('Apple')}
+                        className="apple-btn social-btn"
+                        style={{ ...styles.socialBtn, border: '1.5px solid #000000', color: '#000000' }}
+                      >
+                        <svg style={styles.socialIcon} viewBox="0 0 24 24" fill="#000000">
+                          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.57 2.95-1.39z"/>
+                        </svg>
+                        <span>Continue with Apple</span>
+                      </button>
                     </div>
-                    <h2 style={{ ...styles.loginTitle, textAlign: 'center', margin: '0 0 4px 0' }}>Sign in</h2>
-                    <p style={{ ...styles.loginSubtitle, textAlign: 'center', margin: '0 0 24px 0' }}>with your Google Account</p>
+
+                    <div style={{ ...styles.loginDivider, margin: '24px 0 16px' }}>
+                      <span style={{ ...styles.loginDividerText, fontSize: '13px', color: 'var(--color-text-dark)', fontWeight: '700' }}>
+                        Or, sign in with email.
+                      </span>
+                    </div>
 
                     <form onSubmit={handleCredentialsSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                       <div style={styles.formGroup}>
-                        <label style={styles.label}>Gmail or Email</label>
                         <input 
                           type="email" 
                           value={loginEmail}
                           onChange={(e) => setLoginEmail(e.target.value)}
-                          placeholder="username@gmail.com"
-                          style={styles.input}
+                          placeholder="Email address"
+                          className="loginFormInput"
+                          style={styles.loginFormInput}
                           required
                         />
                       </div>
 
-                      <div style={styles.formGroup}>
-                        <label style={styles.label}>Password</label>
+                      <div style={{ ...styles.formGroup, position: 'relative' }}>
                         <input 
-                          type="password" 
+                          type={showPassword ? 'text' : 'password'} 
                           value={loginPassword}
                           onChange={(e) => setLoginPassword(e.target.value)}
-                          placeholder="••••••••"
-                          style={styles.input}
+                          placeholder="Password"
+                          className="loginFormInput"
+                          style={styles.loginFormInput}
                           required
                         />
+                        <button 
+                          type="button" 
+                          onClick={() => setShowPassword(!showPassword)}
+                          style={styles.eyeBtn}
+                          title={showPassword ? "Hide password" : "Show password"}
+                        >
+                          {showPassword ? (
+                            <svg style={{ width: '20px', height: '20px' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                              <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                          ) : (
+                            <svg style={{ width: '20px', height: '20px' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          )}
+                        </button>
                       </div>
 
-                      <div style={styles.formGroup}>
-                        <label style={styles.label}>Phone Number (for 2-Step Verification)</label>
-                        <input 
-                          type="text" 
-                          maxLength="10"
-                          value={loginPhone}
-                          onChange={(e) => setLoginPhone(e.target.value.replace(/\D/g, ''))}
-                          placeholder="9876543210"
-                          style={styles.input}
-                          required
-                        />
-                      </div>
+                      <a href="#forgot" style={{ fontSize: '13px', color: 'var(--color-text-dark)', textDecoration: 'underline', fontWeight: '600', alignSelf: 'flex-start' }}>
+                        Forgot password?
+                      </a>
+
+                      <p style={{ fontSize: '10.5px', color: 'var(--color-text-muted)', lineHeight: '1.4', margin: '8px 0' }}>
+                        By signing in, you have read and agree to our <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Vista Account Terms</span> and <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy and Cookie Policy</span>. By clicking on the 'Sign in' button, you authorize us (Cimpress India Pvt Ltd) and its representatives to contact you through Call, Email, SMS, or WhatsApp for transactional, promotional and/or commercial purposes. This consent overrides your registration under DNC/NDNC.
+                      </p>
 
                       {loginError && (
                         <div style={{ color: 'var(--color-error)', fontSize: '12px', fontWeight: '600' }}>
@@ -906,29 +955,37 @@ function App() {
                         </div>
                       )}
 
-                      <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-                        <button 
-                          type="button" 
-                          onClick={() => setLoginStep('button')} 
-                          className="btn btn-outline" 
-                          style={{ flex: 1, padding: '10px' }}
-                        >
-                          Cancel
-                        </button>
-                        
-                        <button 
-                          type="submit" 
-                          className="btn btn-secondary" 
-                          style={{ flex: 1, padding: '10px' }}
-                        >
-                          Next
-                        </button>
+                      <button 
+                        type="submit" 
+                        className="btn btn-secondary" 
+                        style={{
+                          ...styles.vistaprintSubmitBtn,
+                          backgroundColor: (loginEmail.trim().includes('@') && loginPassword.trim().length >= 6) ? 'var(--color-primary)' : '#e4e5e9',
+                          color: (loginEmail.trim().includes('@') && loginPassword.trim().length >= 6) ? '#ffffff' : '#a6b0c3',
+                          cursor: (loginEmail.trim().includes('@') && loginPassword.trim().length >= 6) ? 'pointer' : 'not-allowed'
+                        }}
+                        disabled={!(loginEmail.trim().includes('@') && loginPassword.trim().length >= 6)}
+                      >
+                        Sign in
+                      </button>
+
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '4px 0', fontSize: '12px', color: 'var(--color-text-muted)', fontWeight: '600' }}>
+                        or
                       </div>
+
+                      <button 
+                        type="button"
+                        onClick={handleCreateAccountTrigger}
+                        className="btn btn-outline"
+                        style={styles.vistaprintCreateBtn}
+                      >
+                        Create an account
+                      </button>
                     </form>
                   </div>
                 )}
 
-                {/* 3. 2-Step OTP Verification Step */}
+                {/* 2. 2-Step OTP Verification Step */}
                 {loginStep === 'otp' && (
                   <div style={{ width: '100%', textAlign: 'left' }}>
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
@@ -938,7 +995,7 @@ function App() {
                     </div>
                     <h2 style={{ ...styles.loginTitle, textAlign: 'center', margin: '0 0 4px 0' }}>2-Step Verification</h2>
                     <p style={{ ...styles.loginSubtitle, textAlign: 'center', margin: '0 0 24px 0' }}>
-                      Google sent a text message with a 6-digit verification code to <strong>+91 {loginPhone}</strong>.
+                      A text message with a 6-digit verification code was sent to <strong>+91 {loginPhone}</strong>.
                     </p>
 
                     {isLoggingIn ? (
@@ -956,11 +1013,12 @@ function App() {
                             value={loginOtp}
                             onChange={(e) => setLoginOtp(e.target.value.replace(/\D/g, ''))}
                             placeholder="G-123456"
-                            style={styles.input}
+                            className="loginFormInput"
+                            style={styles.loginFormInput}
                             required
                           />
                           <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                            (SMS sent. For testing, you can use code: <strong>{generatedOtp || '123456'}</strong>)
+                            (For testing, you can use code: <strong>{generatedOtp || '123456'}</strong>)
                           </span>
                         </div>
 
@@ -983,7 +1041,15 @@ function App() {
                           <button 
                             type="submit" 
                             className="btn btn-secondary" 
-                            style={{ flex: 1, padding: '10px' }}
+                            style={{ 
+                              ...styles.vistaprintSubmitBtn, 
+                              flex: 1, 
+                              padding: '12px',
+                              backgroundColor: loginOtp.length === 6 ? 'var(--color-primary)' : '#e4e5e9',
+                              color: loginOtp.length === 6 ? '#ffffff' : '#a6b0c3',
+                              cursor: loginOtp.length === 6 ? 'pointer' : 'not-allowed'
+                            }}
+                            disabled={loginOtp.length !== 6}
                           >
                             Verify
                           </button>
@@ -1393,6 +1459,71 @@ const styles = {
   googleIcon: {
     width: '18px',
     height: '18px',
+  },
+  socialBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    padding: '12px',
+    borderRadius: '8px',
+    border: '1.5px solid #d1d5db',
+    backgroundColor: '#ffffff',
+    color: '#1d1d1d',
+    fontWeight: '600',
+    fontSize: '14px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  },
+  socialIcon: {
+    width: '18px',
+    height: '18px',
+    marginRight: '8px',
+    display: 'inline-block',
+  },
+  loginFormInput: {
+    width: '100%',
+    padding: '12px 16px',
+    borderRadius: '8px',
+    border: '1.5px solid #d1d5db',
+    fontSize: '14px',
+    outline: 'none',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.2s ease',
+  },
+  vistaprintSubmitBtn: {
+    width: '100%',
+    padding: '14px',
+    borderRadius: '8px',
+    fontWeight: '600',
+    fontSize: '15px',
+    border: 'none',
+    transition: 'all 0.2s ease',
+  },
+  vistaprintCreateBtn: {
+    width: '100%',
+    padding: '14px',
+    borderRadius: '8px',
+    backgroundColor: '#ffffff',
+    color: '#1d1d1d',
+    border: '1.5px solid #1d1d1d',
+    fontWeight: '600',
+    fontSize: '15px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  },
+  eyeBtn: {
+    position: 'absolute',
+    right: '12px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    border: 'none',
+    background: 'none',
+    cursor: 'pointer',
+    fontSize: '18px',
+    padding: '4px',
+    display: 'flex',
+    alignItems: 'center',
   },
   loginDivider: {
     display: 'flex',

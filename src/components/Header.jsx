@@ -12,7 +12,8 @@ const Header = ({
   theme,
   onToggleTheme,
   isLoggedIn,
-  user
+  user,
+  onLogout
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -158,15 +159,48 @@ const Header = ({
               {favCount > 0 && <span style={styles.badge}>{favCount}</span>}
             </div>
 
-            <div style={styles.utilityItem} onClick={() => onNavigate('account')}>
-              {isLoggedIn && user ? (
-                <div style={styles.headerAvatar}>{user.initials}</div>
-              ) : (
-                <span style={styles.utilityIcon}>👤</span>
-              )}
-              <span className="swan-visible-lg" style={styles.utilityLinkText}>
-                {isLoggedIn && user ? user.name.split(' ')[0] : 'Account'}
-              </span>
+            <div className="account-menu-container" style={{ position: 'relative' }}>
+              <div style={styles.utilityItem} onClick={() => onNavigate('account')}>
+                {isLoggedIn && user ? (
+                  <div style={styles.headerAvatar}>{user.initials}</div>
+                ) : (
+                  <span style={styles.utilityIcon}>👤</span>
+                )}
+                <span className="swan-visible-lg" style={styles.utilityLinkText}>
+                  {isLoggedIn && user ? user.name.split(' ')[0] : 'My Account'}
+                </span>
+              </div>
+              
+              <div className="account-dropdown">
+                <div className="account-dropdown-caret"></div>
+                <div className="account-dropdown-header">
+                  Hello {isLoggedIn && user ? user.name.split(' ')[0] : 'Sign In'}
+                </div>
+                <div className="account-dropdown-divider"></div>
+                <ul className="account-dropdown-list">
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Account</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Dashboard</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Account Profile</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('home'); }}>My Projects</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('home'); }}>My Design Services</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('home'); }}>Websites & Digital</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('home'); }}>Brand Kit</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('home'); }}>My Uploads</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('favorites'); }}>My Favorites</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Order History & Reorder</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Subscriptions</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Account Settings</li>
+                  <li onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Payment & Delivery</li>
+                </ul>
+                <div className="account-dropdown-divider"></div>
+                <div className="account-dropdown-footer">
+                  {isLoggedIn ? (
+                    <button className="account-signout-btn" onClick={(e) => { e.stopPropagation(); onLogout(); }}>Sign out</button>
+                  ) : (
+                    <button className="account-signout-btn" onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Sign in</button>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div style={styles.utilityItem} onClick={onToggleCart}>
