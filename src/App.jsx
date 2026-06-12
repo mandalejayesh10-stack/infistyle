@@ -274,18 +274,99 @@ function App() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [redirectAfterLogin, setRedirectAfterLogin] = useState(null);
 
+  // Dynamic users database state
+  const [usersDb, setUsersDb] = useState({
+    'jayesh@acme.com': {
+      name: 'Jayesh Sharma',
+      email: 'jayesh@acme.com',
+      initials: 'JS',
+      level: 'VIP Corporate',
+      wallet: 450,
+      orders: [
+        { id: 'IS-84291-IN', date: '2026-04-12', items: '100 Standard Visiting Cards', total: 200, status: 'Delivered ✓' },
+        { id: 'IS-91028-IN', date: '2026-05-18', items: "2 Men's Polo T-Shirts", total: 1140, status: 'Delivered ✓' }
+      ]
+    },
+    'amit.verma@gmail.com': {
+      name: 'Amit Verma',
+      email: 'amit.verma@gmail.com',
+      initials: 'AV',
+      level: 'Standard Member',
+      wallet: 150,
+      orders: [
+        { id: 'IS-10492-IN', date: '2026-05-02', items: 'Premium Letterheads', total: 230, status: 'Delivered ✓' }
+      ]
+    }
+  });
+
+  // Login wizard step: 'button' | 'choose' | 'create'
+  const [loginStep, setLoginStep] = useState('button');
+  const [newEmail, setNewEmail] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newEmailError, setNewEmailError] = useState('');
+
   const handleGoogleLogin = () => {
+    setLoginStep('choose');
+  };
+
+  const handleSelectUser = (email) => {
+    const selectedUser = usersDb[email];
+    if (selectedUser) {
+      setIsLoggingIn(true);
+      setTimeout(() => {
+        setIsLoggingIn(false);
+        setIsLoggedIn(true);
+        setUser(selectedUser);
+        setOrderHistory(selectedUser.orders || []);
+        setLoginStep('button');
+        if (redirectAfterLogin) {
+          setView(redirectAfterLogin);
+          setRedirectAfterLogin(null);
+        } else {
+          setView('account');
+        }
+      }, 1000);
+    }
+  };
+
+  const handleCreateUser = (e) => {
+    e.preventDefault();
+    if (!newEmail.trim() || !newEmail.includes('@')) {
+      setNewEmailError('Please enter a valid Gmail / Email address');
+      return;
+    }
+    if (!newName.trim()) {
+      setNewEmailError('Please enter your name');
+      return;
+    }
+
+    const emailKey = newEmail.toLowerCase().trim();
+    const initials = newName.trim().split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+
+    const newUserObj = {
+      name: newName,
+      email: emailKey,
+      initials: initials || 'US',
+      level: 'New Client',
+      wallet: 100, // Signup bonus
+      orders: []
+    };
+
+    setUsersDb(prev => ({
+      ...prev,
+      [emailKey]: newUserObj
+    }));
+
     setIsLoggingIn(true);
     setTimeout(() => {
       setIsLoggingIn(false);
       setIsLoggedIn(true);
-      setUser({
-        name: 'Jayesh Sharma',
-        email: 'jayesh@acme.com',
-        initials: 'JS',
-        level: 'VIP Corporate',
-        wallet: 450
-      });
+      setUser(newUserObj);
+      setOrderHistory([]);
+      setLoginStep('button');
+      setNewName('');
+      setNewEmail('');
+      setNewEmailError('');
       if (redirectAfterLogin) {
         setView(redirectAfterLogin);
         setRedirectAfterLogin(null);
@@ -298,6 +379,7 @@ function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUser(null);
+    setLoginStep('button');
     setView('home');
   };
 
@@ -441,6 +523,15 @@ function App() {
     };
     
     setOrderHistory(prev => [newOrder, ...prev]);
+    if (isLoggedIn && user) {
+      setUsersDb(prev => ({
+        ...prev,
+        [user.email]: {
+          ...prev[user.email],
+          orders: [newOrder, ...(prev[user.email]?.orders || [])]
+        }
+      }));
+    }
     setCart([]); // Clear cart
     setView('success');
     window.scrollTo(0, 0);
@@ -693,51 +784,186 @@ function App() {
           !isLoggedIn ? (
             <div className="container animate-fade-in" style={styles.loginContainer}>
               <div style={styles.loginCard} className="glass-panel">
-                {/* Custom Brand Logo */}
-                <div style={styles.loginLogoWrapper}>
-                  <svg style={styles.loginLogo} viewBox="0 0 100 60">
-                    <path 
-                      d="M 50,30 C 35,15 20,15 20,30 C 20,45 35,45 50,30 C 65,15 80,15 80,30 C 80,45 65,45 50,30 Z" 
-                      fill="none" 
-                      stroke="url(#logoGrad)" 
-                      strokeWidth="7" 
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span style={styles.loginBrandText}>InfiStyle</span>
-                </div>
-                <h2 style={styles.loginTitle}>Welcome to InfiStyle</h2>
-                <p style={styles.loginSubtitle}>Sign in to customize prints, track order status, and manage your designs.</p>
                 
-                <button 
-                  onClick={handleGoogleLogin} 
-                  style={{
-                    ...styles.googleBtn,
-                    opacity: isLoggingIn ? 0.8 : 1,
-                    cursor: isLoggingIn ? 'not-allowed' : 'pointer'
-                  }} 
-                  disabled={isLoggingIn}
-                  className="google-btn"
-                >
-                  {isLoggingIn ? (
-                    <div style={styles.googleSpinner}></div>
-                  ) : (
-                    <svg style={styles.googleIcon} viewBox="0 0 24 24">
-                      <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.57 15.02 1 12 1 7.35 1 3.37 3.67 1.39 7.56l3.78 2.93c.9-2.7 3.41-4.45 6.83-4.45z"/>
-                      <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.89c2.18-2.01 3.7-4.99 3.7-8.62z"/>
-                      <path fill="#FBBC05" d="M5.17 10.49c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.39 7.56c-.89 1.77-1.39 3.77-1.39 5.88s.5 4.11 1.39 5.88l3.78-2.93c-.24-.72-.38-1.49-.38-2.29z"/>
-                      <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.92l-3.73-2.89c-1.03.69-2.35 1.1-4.23 1.1-3.42 0-5.93-1.75-6.83-4.45l-3.78 2.93C3.37 20.33 7.35 23 12 23z"/>
-                    </svg>
-                  )}
-                  <span>{isLoggingIn ? 'Connecting to Google...' : 'Continue with Google'}</span>
-                </button>
-                
-                <div style={styles.loginDivider}>
-                  <span style={styles.loginDividerText}>SECURE AUTHENTICATION</span>
-                </div>
-                <p style={styles.loginFooterText}>
-                  By continuing, you agree to InfiStyle's Terms of Service and Privacy Policy.
-                </p>
+                {/* 1. Google Button Step */}
+                {loginStep === 'button' && (
+                  <>
+                    {/* Custom Brand Logo */}
+                    <div style={styles.loginLogoWrapper}>
+                      <svg style={styles.loginLogo} viewBox="0 0 100 60">
+                        <path 
+                          d="M 50,30 C 35,15 20,15 20,30 C 20,45 35,45 50,30 C 65,15 80,15 80,30 C 80,45 65,45 50,30 Z" 
+                          fill="none" 
+                          stroke="url(#logoGrad)" 
+                          strokeWidth="7" 
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <span style={styles.loginBrandText}>InfiStyle</span>
+                    </div>
+                    <h2 style={styles.loginTitle}>Welcome to InfiStyle</h2>
+                    <p style={styles.loginSubtitle}>Sign in to customize prints, track order status, and manage your designs.</p>
+                    
+                    <button 
+                      onClick={handleGoogleLogin} 
+                      style={styles.googleBtn} 
+                      className="google-btn"
+                    >
+                      <svg style={styles.googleIcon} viewBox="0 0 24 24">
+                        <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.57 15.02 1 12 1 7.35 1 3.37 3.67 1.39 7.56l3.78 2.93c.9-2.7 3.41-4.45 6.83-4.45z"/>
+                        <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.89c2.18-2.01 3.7-4.99 3.7-8.62z"/>
+                        <path fill="#FBBC05" d="M5.17 10.49c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.39 7.56c-.89 1.77-1.39 3.77-1.39 5.88s.5 4.11 1.39 5.88l3.78-2.93c-.24-.72-.38-1.49-.38-2.29z"/>
+                        <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.92l-3.73-2.89c-1.03.69-2.35 1.1-4.23 1.1-3.42 0-5.93-1.75-6.83-4.45l-3.78 2.93C3.37 20.33 7.35 23 12 23z"/>
+                      </svg>
+                      <span>Continue with Google</span>
+                    </button>
+                    
+                    <div style={styles.loginDivider}>
+                      <span style={styles.loginDividerText}>SECURE AUTHENTICATION</span>
+                    </div>
+                    <p style={styles.loginFooterText}>
+                      By continuing, you agree to InfiStyle's Terms of Service and Privacy Policy.
+                    </p>
+                  </>
+                )}
+
+                {/* 2. Choose Google Account Step */}
+                {loginStep === 'choose' && (
+                  <div style={{ width: '100%', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+                      <svg style={{ width: '32px', height: '32px' }} viewBox="0 0 24 24">
+                        <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.57 15.02 1 12 1 7.35 1 3.37 3.67 1.39 7.56l3.78 2.93c.9-2.7 3.41-4.45 6.83-4.45z"/>
+                        <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.89c2.18-2.01 3.7-4.99 3.7-8.62z"/>
+                        <path fill="#FBBC05" d="M5.17 10.49c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.39 7.56c-.89 1.77-1.39 3.77-1.39 5.88s.5 4.11 1.39 5.88l3.78-2.93c-.24-.72-.38-1.49-.38-2.29z"/>
+                        <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.92l-3.73-2.89c-1.03.69-2.35 1.1-4.23 1.1-3.42 0-5.93-1.75-6.83-4.45l-3.78 2.93C3.37 20.33 7.35 23 12 23z"/>
+                      </svg>
+                    </div>
+                    <h2 style={{ ...styles.loginTitle, textAlign: 'center', margin: '0 0 4px 0' }}>Choose an account</h2>
+                    <p style={{ ...styles.loginSubtitle, textAlign: 'center', margin: '0 0 24px 0' }}>to continue to InfiStyle</p>
+
+                    {isLoggingIn ? (
+                      <div style={styles.loadingBox}>
+                        <div className="loading-spinner" style={styles.spinner}></div>
+                        <h3 style={styles.loadingText}>Signing in...</h3>
+                      </div>
+                    ) : (
+                      <>
+                        <div style={styles.accountChooserList} className="accountChooserList">
+                          {Object.keys(usersDb).map((email) => {
+                            const u = usersDb[email];
+                            return (
+                              <div 
+                                key={email} 
+                                onClick={() => handleSelectUser(email)} 
+                                style={styles.accountListItem}
+                                className="google-account-item"
+                              >
+                                <div style={styles.accountItemAvatar}>{u.initials}</div>
+                                <div style={styles.accountItemDetails}>
+                                  <span style={styles.accountItemName}>{u.name}</span>
+                                  <span style={styles.accountItemEmail}>{u.email}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                          <div 
+                            onClick={() => setLoginStep('create')} 
+                            style={styles.accountListItem}
+                            className="google-account-item"
+                          >
+                            <div style={{ ...styles.accountItemAvatar, backgroundColor: '#f3f4f6', color: '#4b5563' }}>➕</div>
+                            <div style={styles.accountItemDetails}>
+                              <span style={{ ...styles.accountItemName, color: 'var(--color-secondary)' }}>Use another account</span>
+                              <span style={styles.accountItemEmail}>Create or sign in with another email</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={() => setLoginStep('button')} 
+                          style={styles.chooserBackBtn}
+                        >
+                          ← Cancel
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* 3. Create Google Account Step */}
+                {loginStep === 'create' && (
+                  <div style={{ width: '100%', textAlign: 'left' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+                      <svg style={{ width: '32px', height: '32px' }} viewBox="0 0 24 24">
+                        <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.57 15.02 1 12 1 7.35 1 3.37 3.67 1.39 7.56l3.78 2.93c.9-2.7 3.41-4.45 6.83-4.45z"/>
+                        <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.89c2.18-2.01 3.7-4.99 3.7-8.62z"/>
+                        <path fill="#FBBC05" d="M5.17 10.49c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.39 7.56c-.89 1.77-1.39 3.77-1.39 5.88s.5 4.11 1.39 5.88l3.78-2.93c-.24-.72-.38-1.49-.38-2.29z"/>
+                        <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.92l-3.73-2.89c-1.03.69-2.35 1.1-4.23 1.1-3.42 0-5.93-1.75-6.83-4.45l-3.78 2.93C3.37 20.33 7.35 23 12 23z"/>
+                      </svg>
+                    </div>
+                    <h2 style={{ ...styles.loginTitle, textAlign: 'center', margin: '0 0 4px 0' }}>Use another account</h2>
+                    <p style={{ ...styles.loginSubtitle, textAlign: 'center', margin: '0 0 24px 0' }}>Enter details to create mock Gmail account</p>
+
+                    {isLoggingIn ? (
+                      <div style={styles.loadingBox}>
+                        <div className="loading-spinner" style={styles.spinner}></div>
+                        <h3 style={styles.loadingText}>Creating profile...</h3>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleCreateUser} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div style={styles.formGroup}>
+                          <label style={styles.label}>Gmail Address</label>
+                          <input 
+                            type="email" 
+                            value={newEmail}
+                            onChange={(e) => setNewEmail(e.target.value)}
+                            placeholder="username@gmail.com"
+                            style={styles.input}
+                            required
+                          />
+                        </div>
+
+                        <div style={styles.formGroup}>
+                          <label style={styles.label}>Full Name</label>
+                          <input 
+                            type="text" 
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            placeholder="John Doe"
+                            style={styles.input}
+                            required
+                          />
+                        </div>
+
+                        {newEmailError && (
+                          <div style={{ color: 'var(--color-error)', fontSize: '12px', fontWeight: '600' }}>
+                            ⚠ {newEmailError}
+                          </div>
+                        )}
+
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                          <button 
+                            type="button" 
+                            onClick={() => setLoginStep('choose')} 
+                            className="btn btn-outline" 
+                            style={{ flex: 1, padding: '10px' }}
+                          >
+                            Back
+                          </button>
+                          
+                          <button 
+                            type="submit" 
+                            className="btn btn-secondary" 
+                            style={{ flex: 1, padding: '10px' }}
+                          >
+                            Sign In
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -1159,6 +1385,61 @@ const styles = {
     fontSize: '11px',
     color: 'var(--color-text-muted)',
     lineHeight: '1.4',
+  },
+  accountChooserList: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    border: '1px solid var(--color-border)',
+    borderRadius: 'var(--radius-md)',
+    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    marginBottom: '20px',
+  },
+  accountListItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+    padding: '12px 16px',
+    borderBottom: '1px solid var(--color-border)',
+    cursor: 'pointer',
+    transition: 'var(--transition-fast)',
+  },
+  accountItemAvatar: {
+    width: '36px',
+    height: '36px',
+    borderRadius: '50%',
+    backgroundColor: 'var(--color-secondary)',
+    color: '#ffffff',
+    fontSize: '13px',
+    fontWeight: '700',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  accountItemDetails: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  accountItemName: {
+    fontSize: '14px',
+    fontWeight: '600',
+    color: 'var(--color-text-dark)',
+  },
+  accountItemEmail: {
+    fontSize: '11px',
+    color: 'var(--color-text-muted)',
+  },
+  chooserBackBtn: {
+    fontSize: '13px',
+    color: 'var(--color-text-muted)',
+    fontWeight: '600',
+    alignSelf: 'center',
+    padding: '6px 12px',
+    transition: 'var(--transition-fast)',
+    border: 'none',
+    background: 'none',
+    cursor: 'pointer',
   }
 };
 
