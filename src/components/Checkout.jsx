@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Checkout = ({ cartItems, grandTotal, promoDiscount, onOrderSuccess, onGoBack, user }) => {
+const Checkout = ({ cartItems, grandTotal, promoDiscount, onOrderSuccess, onGoBack, user, onPaymentFailure }) => {
   // Shipping form state
   const [name, setName] = useState(user?.name || '');
   const [address, setAddress] = useState(user?.shipping_address || '');
@@ -617,9 +617,34 @@ const Checkout = ({ cartItems, grandTotal, promoDiscount, onOrderSuccess, onGoBa
                   <span style={{fontSize: '13px', color: '#0f62fe', fontWeight: 'bold'}}>🔒 Verifying transaction signature & bank protocols...</span>
                 </div>
               ) : (
-                <button type="submit" style={styles.razorpaySubmit}>
-                  Authorize Payment (₹{finalPayable})
-                </button>
+                <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                  <button type="submit" style={styles.razorpaySubmit}>
+                    Authorize Payment (₹{finalPayable})
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setRazorpayProcessing(true);
+                      setTimeout(() => {
+                        setRazorpayProcessing(false);
+                        setShowRazorpay(false);
+                        if (onPaymentFailure) {
+                          onPaymentFailure(
+                            `Razorpay transaction failed for card ending in *${razorpayCardNo.slice(-4) || '1121'}. Declined by customer's bank (Insufficient Funds).`
+                          );
+                        }
+                        alert('⚠️ Simulated payment declined! The owner/admin has been notified of this transaction failure.');
+                      }, 1200);
+                    }} 
+                    style={{
+                      ...styles.razorpaySubmit,
+                      backgroundColor: 'var(--color-error)',
+                      marginTop: '4px'
+                    }}
+                  >
+                    Simulate Payment Failure ⚠️
+                  </button>
+                </div>
               )}
             </form>
           </div>

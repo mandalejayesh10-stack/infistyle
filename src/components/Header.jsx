@@ -13,7 +13,8 @@ const Header = ({
   onToggleTheme,
   isLoggedIn,
   user,
-  onLogout
+  onLogout,
+  unreadCount = 0
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -143,12 +144,41 @@ const Header = ({
             <div className="account-menu-container" style={{ position: 'relative' }}>
               <div style={styles.utilityItem} onClick={() => onNavigate('account')}>
                 {isLoggedIn && user ? (
-                  <div style={styles.headerAvatar}>{user.initials}</div>
+                  <div style={{...styles.headerAvatar, position: 'relative'}}>
+                    {user.initials}
+                    {unreadCount > 0 && (user.role === 'admin' || user.email === 'admin@infistyle.com') && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '-2px',
+                        right: '-2px',
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        backgroundColor: 'var(--color-error)',
+                        border: '1.5px solid #ffffff'
+                      }}></span>
+                    )}
+                  </div>
                 ) : (
                   <span style={styles.utilityIcon}>👤</span>
                 )}
                 <span className="swan-visible-lg" style={styles.utilityLinkText}>
                   {isLoggedIn && user ? user.name.split(' ')[0] : 'My Account'}
+                  {unreadCount > 0 && (user.role === 'admin' || user.email === 'admin@infistyle.com') && (
+                    <span style={{
+                      backgroundColor: 'var(--color-error)',
+                      color: '#ffffff',
+                      borderRadius: 'var(--radius-full)',
+                      padding: '1px 5px',
+                      fontSize: '9px',
+                      fontWeight: 'bold',
+                      marginLeft: '5px',
+                      display: 'inline-block',
+                      verticalAlign: 'middle'
+                    }}>
+                      {unreadCount}
+                    </span>
+                  )}
                 </span>
               </div>
               
@@ -160,7 +190,22 @@ const Header = ({
                 <div className="account-dropdown-divider"></div>
                 <ul className="account-dropdown-list">
                   {isLoggedIn && user && (user.role === 'admin' || user.email === 'admin@infistyle.com') && (
-                    <li onClick={(e) => { e.stopPropagation(); onNavigate('admin'); }} style={{ color: 'var(--color-secondary)', fontWeight: 'bold' }}>🛡️ Admin Console</li>
+                    <li onClick={(e) => { e.stopPropagation(); onNavigate('admin'); }} style={{ color: 'var(--color-secondary)', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span>🛡️ Admin Console</span>
+                      {unreadCount > 0 && (
+                        <span style={{
+                          backgroundColor: 'var(--color-error)',
+                          color: '#ffffff',
+                          borderRadius: 'var(--radius-full)',
+                          padding: '2px 8px',
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                          marginLeft: '8px'
+                        }}>
+                          {unreadCount}
+                        </span>
+                      )}
+                    </li>
                   )}
                   <li onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Account</li>
                   <li onClick={(e) => { e.stopPropagation(); onNavigate('account'); }}>Dashboard</li>

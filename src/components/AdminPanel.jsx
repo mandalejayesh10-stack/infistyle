@@ -8,16 +8,42 @@ const AdminPanel = ({
   onUpdateInventory, 
   onResolveTicket,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  notifications = [],
+  dispatchedAlerts = [],
+  realtimeLog = [],
+  onMarkNotificationRead,
+  onMarkAllNotificationsRead,
+  onClearNotifications
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [stockAdjustment, setStockAdjustment] = useState({});
+  const [notiFilter, setNotiFilter] = useState('All');
+  const [activeNotiSubTab, setActiveNotiSubTab] = useState('feed'); // 'feed' | 'dispatched' | 'websocket'
+  const [selectedAlertEmail, setSelectedAlertEmail] = useState(null);
 
   // Calculations for CEO Dashboard Metrics
+  const getTodayOrdersCount = () => {
+    return orders.filter(o => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      return o.created_at?.split('T')[0] === todayStr || o.created_at?.split('T')[0] === '2026-06-19';
+    }).length;
+  };
+
   const getTodayRevenue = () => {
-    // Return mock today total or compute from orders created today
-    return 48450; 
+    return orders.filter(o => {
+      const todayStr = new Date().toISOString().split('T')[0];
+      return o.created_at?.split('T')[0] === todayStr || o.created_at?.split('T')[0] === '2026-06-19';
+    }).reduce((acc, o) => acc + (o.payable_amount || o.payable), 0);
+  };
+
+  const getPendingOrdersCount = () => {
+    return orders.filter(o => !o.status.includes('Delivered')).length;
+  };
+
+  const getUnreadNotificationsCount = () => {
+    return notifications.filter(n => !n.is_read).length;
   };
 
   const getMonthlyRevenue = () => {
@@ -70,7 +96,8 @@ const AdminPanel = ({
           { id: 'fulfillment', label: 'Workflows & Job Cards 🖨️' },
           { id: 'inventory', label: 'Inventory Stock 📦' },
           { id: 'finance', label: 'Finance & GST 💰' },
-          { id: 'tickets', label: 'Customer Tickets 🎫' }
+          { id: 'tickets', label: 'Customer Tickets 🎫' },
+          { id: 'notifications', label: `Notifications 🔔${getUnreadNotificationsCount() > 0 ? ` (${getUnreadNotificationsCount()})` : ''}` }
         ].map(tab => (
           <button 
             key={tab.id}
@@ -92,31 +119,37 @@ const AdminPanel = ({
         {/* Tab 1: CEO Dashboard */}
         {activeTab === 'overview' && (
           <div style={styles.gridSection}>
-            {/* Stat Cards */}
+            {/* Stat Cards Row 1 (Required) */}
             <div style={styles.statsRow}>
-              <div style={styles.statCard}>
-                <span style={styles.statLabel}>Today's Target Sales</span>
-                <strong style={styles.statValue}>₹{getTodayRevenue().toLocaleString('en-IN')}</strong>
-                <span style={styles.statSub}>12 orders received today</span>
+              <div style={{...styles.statCard, borderTop: '4px solid var(--color-secondary)'}}>
+                <span style={styles.statLabel}>Today's Orders</span>
+                <strong style={styles.statValue}>{getTodayOrdersCount()}</strong>
+                <span style={styles.statSub}>Placed today ({new Date().toLocaleDateString('en-IN')})</span>
               </div>
+              <div style={{...styles.statCard, borderTop: '4px solid #137333'}}>
+                <span style={styles.statLabel}>Today's Revenue</span>
+                <strong style={{...styles.statValue, color: '#137333'}}>₹{getTodayRevenue().toLocaleString('en-IN')}</strong>
+                <span style={styles.statSub}>Live transaction sales target</span>
+              </div>
+              <div style={{...styles.statCard, borderTop: '4px solid #b06000'}}>
+                <span style={styles.statLabel}>Pending Orders</span>
+                <strong style={{...styles.statValue, color: '#b06000'}}>{getPendingOrdersCount()}</strong>
+                <span style={styles.statSub}>In production queue</span>
+              </div>
+              <div style={{...styles.statCard, borderTop: '4px solid var(--color-border)'}}>
+                <span style={styles.statLabel}>New Notifications</span>
+                <strong style={{...styles.statValue, color: 'var(--color-secondary)'}}>{getUnreadNotificationsCount()}</strong>
+                <span style={styles.statSub}>Requires admin review</span>
+              </div>
+            </div>
+
+            {/* Stat Cards Row 2 (Platform Health) */}
+            <div style={styles.statsRow}>
               <div style={styles.statCard}>
                 <span style={styles.statLabel}>Monthly Total Revenue</span>
                 <strong style={styles.statValue}>₹{getMonthlyRevenue().toLocaleString('en-IN')}</strong>
                 <span style={styles.statSub}>Based on database records</span>
               </div>
-              <div style={styles.statCard}>
-                <span style={styles.statLabel}>Average Order Value (AOV)</span>
-                <strong style={styles.statValue}>₹1,550</strong>
-                <span style={styles.statSub}>Across custom merchandise</span>
-              </div>
-              <div style={styles.statCard}>
-                <span style={styles.statLabel}>Estimated Profit Margin</span>
-                <strong style={{...styles.statValue, color: '#137333'}}>68%</strong>
-                <span style={styles.statSub}>Net markup estimate</span>
-              </div>
-            </div>
-
-            <div style={styles.statsRow}>
               <div style={styles.statCard}>
                 <span style={styles.statLabel}>GST Tax Collected (18%)</span>
                 <strong style={styles.statValue}>₹{getGstCollected().toLocaleString('en-IN')}</strong>
@@ -134,11 +167,85 @@ const AdminPanel = ({
               </div>
             </div>
 
+            {/* Real-time Order Stream - Latest 10 Orders */}
+            <div style={{marginTop: '35px'}}>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--color-border)', paddingBottom: '8px', marginBottom: '16px'}}>
+                <h3 style={{...styles.subTitle, margin: 0}}>⚡ Real-Time Live Order Stream (Latest 10)</h3>
+                <span style={{fontSize: '11px', color: '#137333', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#e6f4ea', padding: '4px 10px', borderRadius: '12px'}}>
+                  <span style={{width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block'}}></span>
+                  Realtime Stream Connected
+                </span>
+              </div>
+              
+              {orders.length === 0 ? (
+                <p style={{color: '#666'}}>No orders placed yet.</p>
+              ) : (
+                <div style={{overflowX: 'auto'}}>
+                  <table style={styles.table}>
+                    <thead>
+                      <tr style={styles.tableRowHead}>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Product Details</th>
+                        <th>Order Amount</th>
+                        <th>Payment Status</th>
+                        <th>Fulfillment Stage</th>
+                        <th>Timestamp</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...orders]
+                        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                        .slice(0, 10)
+                        .map(ord => (
+                          <tr key={ord.id} style={styles.tableRow}>
+                            <td style={{fontWeight: 'bold', color: 'var(--color-secondary)'}}>{ord.id}</td>
+                            <td>
+                              <div style={{display: 'flex', flexDirection: 'column'}}>
+                                <strong>{ord.shipping_name}</strong>
+                                <span style={{fontSize: '11px', color: '#666'}}>{ord.phone || '9876543210'}</span>
+                              </div>
+                            </td>
+                            <td style={{fontSize: '13px', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                              {ord.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}
+                            </td>
+                            <td style={{fontWeight: '700'}}>₹{(ord.payable_amount || ord.payable).toLocaleString('en-IN')}</td>
+                            <td>
+                              <span style={{
+                                ...styles.statusTag,
+                                backgroundColor: ord.payment_status === 'paid' ? '#e6f4ea' : '#fef7e0',
+                                color: ord.payment_status === 'paid' ? '#137333' : '#b06000'
+                              }}>
+                                {ord.payment_method.toUpperCase()} ({ord.payment_status})
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{
+                                ...styles.statusTag,
+                                backgroundColor: ord.status.includes('Delivered') ? '#e6f4ea' : '#e8f0fe',
+                                color: ord.status.includes('Delivered') ? '#137333' : 'var(--color-secondary)'
+                              }}>{ord.status}</span>
+                            </td>
+                            <td style={{fontSize: '11.5px', color: '#666'}}>
+                              {new Date(ord.created_at).toLocaleTimeString()}
+                            </td>
+                            <td>
+                              <button onClick={() => onSelectOrder(ord)} style={styles.manageBtn}>Manage</button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
             {/* Priority Alerts */}
-            <div style={{marginTop: '30px'}}>
+            <div style={{marginTop: '35px'}}>
               <h3 style={styles.subTitle}>🚨 Urgent / VIP Corporate Orders</h3>
               {getUrgentOrders().length === 0 ? (
-                <p>No urgent orders currently in fulfillment queue.</p>
+                <p style={{color: '#666', fontSize: '13px'}}>No urgent orders currently in fulfillment queue.</p>
               ) : (
                 <table style={styles.table}>
                   <thead>
@@ -431,6 +538,334 @@ const AdminPanel = ({
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Tab 6: Notifications & Owner Alerts Center */}
+        {activeTab === 'notifications' && (
+          <div>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid var(--color-border)', paddingBottom: '8px', marginBottom: '20px'}}>
+              <h3 style={{...styles.subTitle, margin: 0}}>🔔 Owner Notification & Real-Time Alerting Center</h3>
+              <div style={{display: 'flex', gap: '10px'}}>
+                <button 
+                  onClick={onMarkAllNotificationsRead} 
+                  style={{
+                    padding: '8px 16px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    border: '1.5px solid var(--color-border)',
+                    borderRadius: '6px',
+                    backgroundColor: '#ffffff',
+                    color: 'var(--color-primary)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Mark All as Read Check ✓
+                </button>
+                <button 
+                  onClick={onClearNotifications} 
+                  style={{
+                    padding: '8px 16px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    border: '1.5px solid var(--color-error)',
+                    borderRadius: '6px',
+                    backgroundColor: '#ffffff',
+                    color: 'var(--color-error)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Clear Logs 🗑️
+                </button>
+              </div>
+            </div>
+
+            {/* Notification Center Sub-Tabs */}
+            <div style={{display: 'flex', gap: '12px', borderBottom: '1px solid var(--color-border)', paddingBottom: '10px', marginBottom: '20px'}}>
+              {[
+                { id: 'feed', label: `Notification Feed 📋 (${notifications.length})` },
+                { id: 'websocket', label: 'Websocket Live Stream ⚡' },
+                { id: 'dispatched', label: `Simulated Owner Alerts 📧 (${dispatchedAlerts.length})` }
+              ].map(subTab => (
+                <button
+                  key={subTab.id}
+                  onClick={() => setActiveNotiSubTab(subTab.id)}
+                  style={{
+                    padding: '6px 14px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    border: 'none',
+                    borderBottom: activeNotiSubTab === subTab.id ? '3px solid var(--color-secondary)' : '3px solid transparent',
+                    color: activeNotiSubTab === subTab.id ? 'var(--color-secondary)' : '#666666',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    borderRadius: 0,
+                    margin: 0
+                  }}
+                >
+                  {subTab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Sub-tab 1: Notification Feed */}
+            {activeNotiSubTab === 'feed' && (
+              <div>
+                {/* Filters */}
+                <div style={{display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap'}}>
+                  {[
+                    { id: 'All', label: 'All Events' },
+                    { id: 'new_order', label: 'New Orders' },
+                    { id: 'payment', label: 'Payments' },
+                    { id: 'refund', label: 'Refund Requests' },
+                    { id: 'ticket', label: 'Support Tickets' }
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => setNotiFilter(f.id)}
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        borderRadius: '16px',
+                        border: notiFilter === f.id ? '1.5px solid var(--color-secondary)' : '1.5px solid var(--color-border)',
+                        backgroundColor: notiFilter === f.id ? '#f0f9ff' : '#ffffff',
+                        color: notiFilter === f.id ? 'var(--color-secondary)' : '#444444',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Notifications List */}
+                {notifications.length === 0 ? (
+                  <div style={{textAlign: 'center', padding: '60px 0', color: '#666'}}>
+                    <span style={{fontSize: '48px'}}>📭</span>
+                    <p style={{marginTop: '10px'}}>No notifications in log.</p>
+                  </div>
+                ) : (
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                    {notifications
+                      .filter(n => {
+                        if (notiFilter === 'All') return true;
+                        if (notiFilter === 'new_order') return n.type === 'new_order';
+                        if (notiFilter === 'payment') return n.type === 'payment_success' || n.type === 'payment_failure';
+                        if (notiFilter === 'refund') return n.type === 'refund_request';
+                        if (notiFilter === 'ticket') return n.type === 'new_support_ticket';
+                        return true;
+                      })
+                      .map(n => (
+                        <div 
+                          key={n.id} 
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '16px',
+                            backgroundColor: n.is_read ? '#ffffff' : '#fffbeb', // highlighted if unread
+                            border: n.is_read ? '1px solid var(--color-border)' : '1.5px solid #ffcc00',
+                            borderRadius: 'var(--radius-md)',
+                            boxShadow: 'var(--shadow-sm)',
+                            transition: 'all 0.2s ease',
+                            textAlign: 'left'
+                          }}
+                        >
+                          <div style={{display: 'flex', gap: '16px', alignItems: 'center'}}>
+                            <span style={{fontSize: '24px'}}>
+                              {n.type === 'new_order' ? '📦' :
+                               n.type.includes('payment') ? '💳' :
+                               n.type === 'refund_request' ? '🔄' :
+                               n.type === 'new_support_ticket' ? '🎫' : '🔔'}
+                            </span>
+                            <div>
+                              <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                <strong style={{fontSize: '14.5px'}}>{n.title}</strong>
+                                {!n.is_read && (
+                                  <span style={{
+                                    backgroundColor: 'var(--color-error)',
+                                    color: '#ffffff',
+                                    borderRadius: '4px',
+                                    fontSize: '9px',
+                                    fontWeight: 'bold',
+                                    padding: '1px 5px',
+                                    textTransform: 'uppercase'
+                                  }}>NEW</span>
+                                )}
+                              </div>
+                              <p style={{fontSize: '13px', color: 'var(--color-text-muted)', margin: '4px 0 0 0'}}>{n.message}</p>
+                              <span style={{fontSize: '11px', color: '#999', marginTop: '4px', display: 'block'}}>
+                                User ID: {n.user_id || 'guest'} | Order ID: {n.order_id || 'N/A'} | Time: {new Date(n.created_at).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                          <div style={{display: 'flex', gap: '8px'}}>
+                            {!n.is_read && (
+                              <button 
+                                onClick={() => onMarkNotificationRead(n.id)} 
+                                style={{
+                                  padding: '6px 12px',
+                                  fontSize: '12px',
+                                  fontWeight: '700',
+                                  backgroundColor: 'var(--color-secondary)',
+                                  color: '#ffffff',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Mark Read ✓
+                              </button>
+                            )}
+                            {n.order_id && (
+                              <button 
+                                onClick={() => {
+                                  const ord = orders.find(o => o.id === n.order_id);
+                                  if (ord) onSelectOrder(ord);
+                                }} 
+                                style={{
+                                  padding: '6px 12px',
+                                  fontSize: '12px',
+                                  fontWeight: '700',
+                                  backgroundColor: 'var(--color-primary)',
+                                  color: '#ffffff',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                View Order ➔
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Sub-tab 2: Websocket Live stream log */}
+            {activeNotiSubTab === 'websocket' && (
+              <div>
+                <p style={{fontSize: '13px', color: '#666', marginBottom: '12px', textAlign: 'left'}}>
+                  Simulation of real-time server stream listening to database schema inserts.
+                </p>
+                <div style={{
+                  backgroundColor: '#1e1e1e',
+                  color: '#00ff00',
+                  fontFamily: 'monospace',
+                  padding: '20px',
+                  borderRadius: '6px',
+                  minHeight: '300px',
+                  maxHeight: '450px',
+                  overflowY: 'auto',
+                  fontSize: '13px',
+                  lineHeight: '1.6',
+                  textAlign: 'left'
+                }}>
+                  {realtimeLog.map((log, idx) => (
+                    <div key={idx} style={{marginBottom: '6px', borderBottom: '1px solid #333', paddingBottom: '4px'}}>
+                      <span style={{color: '#9a9a9a'}}>[{new Date(log.timestamp).toLocaleTimeString()}]</span>{' '}
+                      <span style={{color: log.event.includes('connected') || log.event.includes('clear') ? '#10b981' : '#60a5fa', fontWeight: 'bold'}}>[{log.event.toUpperCase()}]</span>{' '}
+                      <span>{log.details}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sub-tab 3: Dispatched Alerts Simulator */}
+            {activeNotiSubTab === 'dispatched' && (
+              <div style={{display: 'flex', gap: '30px', flexWrap: 'wrap', textAlign: 'left'}}>
+                {/* Left side: Alert List */}
+                <div style={{flex: 1, minWidth: '280px'}}>
+                  <h4 style={{fontSize: '14px', fontWeight: '700', borderBottom: '1px dashed var(--color-border)', paddingBottom: '6px', marginBottom: '12px'}}>Dispatched Alert Payloads</h4>
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                    {dispatchedAlerts.map(alert => (
+                      <div 
+                        key={alert.id}
+                        onClick={() => setSelectedAlertEmail(alert)}
+                        style={{
+                          padding: '12px',
+                          border: selectedAlertEmail?.id === alert.id ? '2px solid var(--color-secondary)' : '1px solid var(--color-border)',
+                          borderRadius: '6px',
+                          backgroundColor: selectedAlertEmail?.id === alert.id ? '#f0f9ff' : '#ffffff',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                          <strong style={{fontSize: '13px', textTransform: 'uppercase'}}>{alert.type === 'email' ? '📧 Email Alert' : '💬 WhatsApp SMS'}</strong>
+                          <span style={{fontSize: '11px', color: '#999'}}>{new Date(alert.created_at).toLocaleTimeString()}</span>
+                        </div>
+                        <p style={{fontSize: '12px', color: '#333', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+                          {alert.type === 'email' ? `Subject: ${alert.subject}` : alert.message}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right side: Alert Viewer */}
+                <div style={{flex: 1.5, minWidth: '320px', borderLeft: '1px solid var(--color-border)', paddingLeft: '20px'}}>
+                  <h4 style={{fontSize: '14px', fontWeight: '700', borderBottom: '1px dashed var(--color-border)', paddingBottom: '6px', marginBottom: '12px'}}>Live Payload Preview</h4>
+                  {selectedAlertEmail ? (
+                    selectedAlertEmail.type === 'email' ? (
+                      <div>
+                        <div style={{backgroundColor: '#f1f3f4', padding: '12px', borderRadius: '6px', marginBottom: '12px', fontSize: '13px', textAlign: 'left'}}>
+                          <strong>From:</strong> Resend API &lt;alerts@infistyle.com&gt;<br/>
+                          <strong>To:</strong> Business Owner &lt;owner@infistyle.com&gt;<br/>
+                          <strong>Subject:</strong> {selectedAlertEmail.subject}
+                        </div>
+                        <div 
+                          style={{border: '1px solid #ccc', borderRadius: '8px', padding: '10px', backgroundColor: '#fff', overflow: 'auto', maxHeight: '400px'}}
+                          dangerouslySetInnerHTML={{ __html: selectedAlertEmail.content }}
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{backgroundColor: '#f1f3f4', padding: '12px', borderRadius: '6px', marginBottom: '12px', fontSize: '13px', textAlign: 'left'}}>
+                          <strong>To:</strong> WhatsApp API Payload &lt;+91 98765 43210&gt;
+                        </div>
+                        <div style={{
+                          backgroundColor: '#efeae2',
+                          backgroundImage: 'url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")',
+                          padding: '20px',
+                          borderRadius: '12px',
+                          minHeight: '280px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'flex-end',
+                          textAlign: 'left'
+                        }}>
+                          <div style={{
+                            alignSelf: 'flex-start',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '8px',
+                            padding: '12px',
+                            maxWidth: '85%',
+                            boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                            fontSize: '13px',
+                            lineHeight: '1.55',
+                            whiteSpace: 'pre-wrap',
+                            color: '#111111'
+                          }}>
+                            {selectedAlertEmail.message}
+                            <span style={{display: 'block', fontSize: '10px', color: '#888', textAlign: 'right', marginTop: '4px'}}>
+                              {new Date(selectedAlertEmail.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} ✓✓
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    <div style={{padding: '60px 0', textAlign: 'center', color: '#666', fontSize: '13px'}}>
+                      Select an alert from the list on the left to preview its content.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

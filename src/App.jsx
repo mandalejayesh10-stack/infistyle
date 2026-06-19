@@ -918,6 +918,279 @@ function App() {
   const [ticketSubject, setTicketSubject] = useState('');
   const [ticketMsg, setTicketMsg] = useState('');
 
+  // Notifications State & Real-time Live Log (Supabase Realtime / WebSockets)
+  const [notificationsDb, setNotificationsDb] = useState([
+    {
+      id: 'NTF-9102',
+      type: 'new_support_ticket',
+      title: '🎫 New Support Ticket Raised',
+      message: 'Client jayesh@acme.com raised ticket TKT-8291 regarding: Invoice Download Failing',
+      order_id: '',
+      user_id: 'jayesh@acme.com',
+      is_read: false,
+      created_at: '2026-06-15T09:00:00Z'
+    },
+    {
+      id: 'NTF-8829',
+      type: 'payment_success',
+      title: '💳 Payment Success (₹755)',
+      message: 'Razorpay payment verification success for order IS-91028-IN',
+      order_id: 'IS-91028-IN',
+      user_id: 'jayesh@acme.com',
+      is_read: true,
+      created_at: '2026-06-19T06:40:00Z'
+    },
+    {
+      id: 'NTF-8828',
+      type: 'new_order',
+      title: '📦 New Order Received',
+      message: 'Order IS-91028-IN placed by Jayesh Sharma (Classic Black Polo T-Shirts)',
+      order_id: 'IS-91028-IN',
+      user_id: 'jayesh@acme.com',
+      is_read: true,
+      created_at: '2026-06-19T06:39:50Z'
+    }
+  ]);
+
+  const [dispatchedAlerts, setDispatchedAlerts] = useState([
+    {
+      id: 'ALT-101',
+      type: 'email',
+      recipient: 'owner@infistyle.com',
+      subject: '📦 New InfiStyle Order: IS-91028-IN',
+      content: `<div style="font-family: 'Outfit', sans-serif; padding: 30px; max-width: 600px; border: 1.5px solid #ffcc00; border-radius: 8px; background-color: #ffffff;">
+        <div style="text-align: center; border-bottom: 2px solid #ffcc00; padding-bottom: 20px; margin-bottom: 20px;">
+          <h2 style="margin: 0; color: #111;"><span style="color: #0f62fe;">infi</span>style Owner Alert</h2>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: #666;">New Customization Order Placed</p>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr>
+            <td style="padding: 6px 0; font-weight: bold; color: #555;">Order ID:</td>
+            <td style="padding: 6px 0; text-align: right; font-weight: bold;">IS-91028-IN</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: bold; color: #555;">Customer Name:</td>
+            <td style="padding: 6px 0; text-align: right;">Jayesh Sharma</td>
+          </tr>
+          <tr>
+            <td style="padding: 6px 0; font-weight: bold; color: #555;">Phone:</td>
+            <td style="padding: 6px 0; text-align: right;">9876543210</td>
+          </tr>
+        </table>
+        <h3 style="border-bottom: 1px dashed #ffcc00; padding-bottom: 8px; color: #111; font-size: 15px;">Shipping Coordinates:</h3>
+        <p style="font-size: 13px; color: #444; line-height: 1.5; margin: 6px 0 20px;">
+          Mittal Towers, 4th Floor, Room 402, Nariman Point<br/>Mumbai - 400021<br/>Coordinates: Lat 18.9284, Lng 72.8229
+        </p>
+        <h3 style="border-bottom: 1px dashed #ffcc00; padding-bottom: 8px; color: #111; font-size: 15px;">Product Specifications:</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
+          <thead>
+            <tr style="border-bottom: 1.5px solid #ffcc00; text-align: left;">
+              <th style="padding: 8px 0;">Product</th>
+              <th style="padding: 8px 0; text-align: center;">Qty</th>
+              <th style="padding: 8px 0; text-align: right;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Men's Polo T-Shirts</strong><br/><span style="font-size: 11px; color: #666;">Size: XL</span></td>
+              <td style="padding: 8px 0; text-align: center;">2</td>
+              <td style="padding: 8px 0; text-align: right;">₹755</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="background-color: #fffbeb; padding: 12px; border-radius: 6px; border: 1px solid #ffe885;">
+          <table style="width: 100%; font-size: 14px;">
+            <tr>
+              <td style="font-weight: bold; color: #555;">Payment Type:</td>
+              <td style="text-align: right; text-transform: uppercase;">card</td>
+            </tr>
+            <tr style="font-size: 16px; font-weight: bold; border-top: 1.5px solid #ffcc00;">
+              <td style="padding-top: 10px; color: #111;">Total Amount:</td>
+              <td style="padding-top: 10px; text-align: right; color: #0f62fe;">₹755</td>
+            </tr>
+          </table>
+        </div>
+      </div>`,
+      created_at: '2026-06-19T06:40:05Z'
+    },
+    {
+      id: 'ALT-102',
+      type: 'whatsapp',
+      recipient: '9876543210',
+      message: `📦 *New InfiStyle Order Received!*\n\n*Order ID:* IS-91028-IN\n*Customer:* Jayesh Sharma\n*Phone:* 9876543210\n*Product:* Men's Polo T-Shirts (2x)\n*Amount:* ₹755\n*Payment:* Paid (Online)\n\n_Configure fulfillment inside SaaS panel._`,
+      created_at: '2026-06-19T06:40:06Z'
+    }
+  ]);
+
+  const [realtimeLog, setRealtimeLog] = useState([
+    { timestamp: '2026-06-19T06:38:00Z', event: 'websocket_connected', details: '🟢 Connected to ws://infistyle-realtime.supabase.co' },
+    { timestamp: '2026-06-19T06:39:50Z', event: 'db_insert', details: 'INSERT INTO notifications: NTF-8828 (type: new_order)' },
+    { timestamp: '2026-06-19T06:40:00Z', event: 'db_insert', details: 'INSERT INTO notifications: NTF-8829 (type: payment_success)' }
+  ]);
+
+  const [activeToast, setActiveToast] = useState(null);
+
+  const triggerNotification = (type, title, message, orderId = '', userId = '') => {
+    const ntfId = `NTF-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newNtf = {
+      id: ntfId,
+      type,
+      title,
+      message,
+      order_id: orderId,
+      user_id: userId,
+      is_read: false,
+      created_at: new Date().toISOString()
+    };
+    
+    // Add to DB state
+    setNotificationsDb(prev => [newNtf, ...prev]);
+
+    // WebSocket / Realtime log simulation
+    const wsLog = {
+      timestamp: new Date().toISOString(),
+      event: 'db_insert',
+      details: `INSERT INTO notifications: ${ntfId} (type: ${type})`
+    };
+    setRealtimeLog(prev => [wsLog, ...prev]);
+
+    // Trigger visual toast popup notification instantly
+    setActiveToast(newNtf);
+    
+    // Play subtle visual/sound notification cue via standard alert or console log
+    console.log(`[Real-Time Notification Broadcasted]: ${title} - ${message}`);
+
+    // If it's a new order trigger email/whatsapp simulation alerts for the owner
+    if (type === 'new_order' && orderId) {
+      setTimeout(() => {
+        // Find order from orderHistory inside state
+        // We will reference the main state here
+        const orderSearch = window.__orderHistoryStore ? window.__orderHistoryStore.find(o => o.id === orderId) : null;
+        
+        // Fallback: search in current order history state if available
+        const actualOrder = orderSearch || (orderHistory && orderHistory.find(o => o.id === orderId));
+        
+        if (actualOrder) {
+          const emailContent = `
+            <div style="font-family: 'Outfit', sans-serif; padding: 30px; max-width: 600px; border: 1.5px solid #ffcc00; border-radius: 8px; background-color: #ffffff;">
+              <div style="text-align: center; border-bottom: 2px solid #ffcc00; padding-bottom: 20px; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: #111;"><span style="color: #0f62fe;">infi</span>style Owner Alert</h2>
+                <p style="margin: 5px 0 0 0; font-size: 13px; color: #666;">New Customization Order Placed</p>
+              </div>
+              
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #555;">Order ID:</td>
+                  <td style="padding: 6px 0; text-align: right; font-weight: bold;">${actualOrder.id}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #555;">Customer Name:</td>
+                  <td style="padding: 6px 0; text-align: right;">${actualOrder.shipping_name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #555;">Phone:</td>
+                  <td style="padding: 6px 0; text-align: right;">${actualOrder.phone || '9876543210'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #555;">Email:</td>
+                  <td style="padding: 6px 0; text-align: right;">${actualOrder.user_id}</td>
+                </tr>
+              </table>
+
+              <h3 style="border-bottom: 1px dashed #ffcc00; padding-bottom: 8px; color: #111; font-size: 15px;">Shipping Coordinates:</h3>
+              <p style="font-size: 13px; color: #444; line-height: 1.5; margin: 6px 0 20px;">
+                ${actualOrder.shipping_address}<br/>
+                ${actualOrder.shipping_city} - ${actualOrder.shipping_pincode}<br/>
+                Coordinates: Lat ${actualOrder.latitude || '18.9284'}, Lng ${actualOrder.longitude || '72.8229'}
+              </p>
+
+              <h3 style="border-bottom: 1px dashed #ffcc00; padding-bottom: 8px; color: #111; font-size: 15px;">Product Specifications:</h3>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px;">
+                <thead>
+                  <tr style="border-bottom: 1.5px solid #ffcc00; text-align: left;">
+                    <th style="padding: 8px 0;">Product</th>
+                    <th style="padding: 8px 0; text-align: center;">Qty</th>
+                    <th style="padding: 8px 0; text-align: right;">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${actualOrder.items.map(item => `
+                    <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 8px 0;">
+                        <strong>${item.name}</strong><br/>
+                        <span style="font-size: 11px; color: #666;">Size: ${item.config?.shirtSize || item.size || 'N/A'}</span>
+                      </td>
+                      <td style="padding: 8px 0; text-align: center;">${item.quantity}</td>
+                      <td style="padding: 8px 0; text-align: right;">₹${item.price}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+
+              <div style="background-color: #fffbeb; padding: 12px; border-radius: 6px; border: 1px solid #ffe885;">
+                <table style="width: 100%; font-size: 14px;">
+                  <tr>
+                    <td style="font-weight: bold; color: #555;">Payment Type:</td>
+                    <td style="text-align: right; text-transform: uppercase;">${actualOrder.payment_method}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-weight: bold; color: #555;">Payment Status:</td>
+                    <td style="text-align: right; font-weight: bold; color: ${actualOrder.payment_status === 'paid' ? 'green' : 'orange'}">${actualOrder.payment_status.toUpperCase()}</td>
+                  </tr>
+                  <tr style="font-size: 16px; font-weight: bold; border-top: 1.5px solid #ffcc00;">
+                    <td style="padding-top: 10px; color: #111;">Total Amount:</td>
+                    <td style="padding-top: 10px; text-align: right; color: #0f62fe;">₹${actualOrder.payable_amount || actualOrder.payable}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <p style="font-size: 10px; text-align: center; color: #888; margin-top: 24px;">Sent automatically via SendGrid / Resend API Webhook.</p>
+            </div>
+          `;
+
+          const whatsappMsg = `📦 *New InfiStyle Order Received!*\n\n*Order ID:* ${actualOrder.id}\n*Customer:* ${actualOrder.shipping_name}\n*Phone:* ${actualOrder.phone || '9876543210'}\n*Product:* ${actualOrder.items.map(i => `${i.name} (${i.quantity}x)`).join(', ')}\n*Amount:* ₹${actualOrder.payable_amount || actualOrder.payable}\n*Payment:* ${actualOrder.payment_status === 'paid' ? 'Paid (Online)' : 'COD (Pending)'}\n\n_Configure fulfillment inside SaaS panel._`;
+
+          setDispatchedAlerts(prev => [
+            {
+              id: `ALT-${Math.floor(1000 + Math.random() * 9000)}`,
+              type: 'email',
+              recipient: 'owner@infistyle.com',
+              subject: `📦 New InfiStyle Order: ${actualOrder.id}`,
+              content: emailContent,
+              created_at: new Date().toISOString()
+            },
+            {
+              id: `ALT-${Math.floor(1000 + Math.random() * 9000)}`,
+              type: 'whatsapp',
+              recipient: '9876543210',
+              message: whatsappMsg,
+              created_at: new Date().toISOString()
+            },
+            ...prev
+          ]);
+        }
+      }, 200);
+    }
+  };
+
+  const handleMarkNotificationRead = (ntfId) => {
+    setNotificationsDb(prev => prev.map(n => n.id === ntfId ? { ...n, is_read: true } : n));
+  };
+
+  const handleMarkAllNotificationsRead = () => {
+    setNotificationsDb(prev => prev.map(n => ({ ...n, is_read: true })));
+  };
+
+  const handleClearNotifications = () => {
+    setNotificationsDb([]);
+    const wsLog = {
+      timestamp: new Date().toISOString(),
+      event: 'db_clear',
+      details: `TRUNCATE TABLE notifications`
+    };
+    setRealtimeLog(prev => [wsLog, ...prev]);
+  };
+
   // Login wizard step: 'credentials' | 'otp'
   const [loginStep, setLoginStep] = useState('credentials');
   const [loginEmail, setLoginEmail] = useState('');
@@ -1344,6 +1617,34 @@ function App() {
         if (selectedOrderDetail && selectedOrderDetail.id === orderId) {
           setSelectedOrderDetail(updatedOrder);
         }
+
+        // Trigger status-specific notifications
+        if (newStatus.includes('Shipped')) {
+          triggerNotification(
+            'order_shipped',
+            '🚚 Order Dispatched & Shipped',
+            `Order ${orderId} has been packed and handed over to ${partner} (AWB: ${tracking})`,
+            orderId,
+            ord.user_id
+          );
+        } else if (newStatus.includes('Delivered')) {
+          triggerNotification(
+            'order_delivered',
+            '✅ Order Delivered Successfully',
+            `Order ${orderId} has been successfully delivered to ${ord.shipping_name}`,
+            orderId,
+            ord.user_id
+          );
+        } else if (newStatus.includes('Design Review')) {
+          triggerNotification(
+            'design_approval_request',
+            '🔍 Design Approval Required',
+            `Custom design review required for Order ${orderId} before print queue allocation`,
+            orderId,
+            ord.user_id
+          );
+        }
+
         return updatedOrder;
       }
       return ord;
@@ -1387,6 +1688,16 @@ function App() {
         if (selectedOrderDetail && selectedOrderDetail.id === orderId) {
           setSelectedOrderDetail(updatedOrder);
         }
+        
+        // Trigger refund/replacement request notification
+        triggerNotification(
+          'refund_request',
+          '🔄 Replacement/Reprint Requested',
+          `Order ${orderId} has requested a reprint/replacement. Reason: ${details.reason}`,
+          orderId,
+          ord.user_id
+        );
+
         return updatedOrder;
       }
       return ord;
@@ -1549,7 +1860,10 @@ function App() {
     };
 
     setOrderReceipt(newDetailedOrder);
-    setOrderHistory(prev => [newDetailedOrder, ...prev]);
+    
+    const updatedHistory = [newDetailedOrder, ...orderHistory];
+    window.__orderHistoryStore = updatedHistory;
+    setOrderHistory(updatedHistory);
 
     if (isLoggedIn && user) {
       setUsersDb(prev => ({
@@ -1559,6 +1873,33 @@ function App() {
           orders: [receipt.orderId, ...(prev[user.email]?.orders || [])]
         }
       }));
+    }
+
+    // Trigger Real-time notifications for Owner
+    triggerNotification(
+      'new_order',
+      '🔔 New Order Received',
+      `Order ${receipt.orderId} placed by ${receipt.shippingName} (Amount: ₹${receipt.payable})`,
+      receipt.orderId,
+      user ? user.email : 'guest@infistyle.com'
+    );
+
+    if (receipt.paymentStatus === 'paid') {
+      triggerNotification(
+        'payment_success',
+        '💳 Payment Success',
+        `Razorpay payment capture success for Order ${receipt.orderId} (₹${receipt.payable})`,
+        receipt.orderId,
+        user ? user.email : 'guest@infistyle.com'
+      );
+    } else {
+      triggerNotification(
+        'payment_failure',
+        '⚠️ Payment Pending / Failed',
+        `Payment pending for Order ${receipt.orderId} via ${receipt.paymentMethod.toUpperCase()}`,
+        receipt.orderId,
+        user ? user.email : 'guest@infistyle.com'
+      );
     }
 
     setCart([]); // Clear cart
@@ -1586,6 +1927,51 @@ function App() {
 
   return (
     <div className="App">
+      {/* Real-time Notification Toast (WebSocket/Supabase Realtime Simulation) */}
+      {activeToast && (
+        <div style={{
+          position: 'fixed',
+          top: '24px',
+          right: '24px',
+          backgroundColor: '#ffffff',
+          borderLeft: '6px solid var(--color-secondary)',
+          borderRight: '1.5px solid var(--color-border)',
+          borderTop: '1.5px solid var(--color-border)',
+          borderBottom: '1.5px solid var(--color-border)',
+          boxShadow: 'var(--shadow-lg)',
+          borderRadius: 'var(--radius-md)',
+          padding: '18px 22px',
+          zIndex: 99999,
+          maxWidth: '380px',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+          animation: 'slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+        }}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <strong style={{color: 'var(--color-secondary)', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: '800'}}>
+              ⚡ Real-Time Alert Event
+            </strong>
+            <button 
+              onClick={() => setActiveToast(null)} 
+              style={{border: 'none', background: 'none', cursor: 'pointer', fontSize: '18px', color: '#999', fontWeight: 'bold', padding: '0 4px'}}
+            >
+              ×
+            </button>
+          </div>
+          <h4 style={{fontSize: '14px', fontWeight: '700', color: 'var(--color-text-dark)', margin: 0}}>
+            {activeToast.title}
+          </h4>
+          <p style={{fontSize: '12.5px', color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.45}}>
+            {activeToast.message}
+          </p>
+          <span style={{fontSize: '10px', color: '#aaa', alignSelf: 'flex-end', marginTop: '4px'}}>
+            {new Date(activeToast.created_at).toLocaleTimeString()}
+          </span>
+        </div>
+      )}
+
       {/* 1. Promotional code bar */}
       <PromoBar />
 
@@ -1604,6 +1990,7 @@ function App() {
         isLoggedIn={isLoggedIn}
         user={user}
         onLogout={handleLogout}
+        unreadCount={notificationsDb.filter(n => !n.is_read).length}
       />
 
       {/* 3. Main Routing Section */}
@@ -1692,6 +2079,15 @@ function App() {
             onOrderSuccess={handleOrderSuccess}
             onGoBack={() => setViewWithHistory('home')}
             user={user}
+            onPaymentFailure={(msg) => {
+              triggerNotification(
+                'payment_failure',
+                '⚠️ Payment Failure Alert',
+                msg,
+                '',
+                user ? user.email : 'guest@infistyle.com'
+              );
+            }}
           />
         )}
 
@@ -1734,6 +2130,12 @@ function App() {
             }}
             activeTab={adminTab}
             setActiveTab={setAdminTab}
+            notifications={notificationsDb}
+            dispatchedAlerts={dispatchedAlerts}
+            realtimeLog={realtimeLog}
+            onMarkNotificationRead={handleMarkNotificationRead}
+            onMarkAllNotificationsRead={handleMarkAllNotificationsRead}
+            onClearNotifications={handleClearNotifications}
           />
         )}
 
@@ -2236,6 +2638,13 @@ function App() {
                           created_at: new Date().toISOString()
                         };
                         setTicketsDb(prev => [newTkt, ...prev]);
+                        triggerNotification(
+                          'new_support_ticket',
+                          '🎫 New Support Ticket Raised',
+                          `Ticket ${newTkt.id} raised by ${user.email} regarding: ${newTkt.subject}`,
+                          '',
+                          user.email
+                        );
                         setTicketSubject('');
                         setTicketMsg('');
                         alert('Support ticket created successfully! Admin will reply via email/whatsapp.');
