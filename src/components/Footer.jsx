@@ -75,7 +75,7 @@ const Footer = ({ onNavigate }) => {
 
 const styles = {
   footer: {
-    backgroundColor: '#f6f6ec',
+    backgroundColor: '#ffffff',
     borderTop: '1px solid var(--color-border)',
     padding: '60px 0 40px',
     marginTop: '60px',

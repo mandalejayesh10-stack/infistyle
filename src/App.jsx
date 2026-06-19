@@ -116,17 +116,17 @@ const PRODUCT_CATALOG = [
     tag: 'NEW'
   },
 
-  // Clothing & Bags
+  // Clothing & Bags (Polos)
   {
     id: 'embroideredMensPoloTShirts',
     name: "Men's Polo T-Shirts",
     category: 'polo-shirts',
     categoryName: 'Clothing & Apparel',
-    price: 570,
-    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/NVHP/New%20Home%20Page/NEW%20-%20NVHP%20Tiles/Top%20Selling%20Bulk%20Products/IN_NVHPTiles_PoloT-Shirts_01',
+    price: 320,
+    image: '/ai_model_polo_tshirt.png',
     rating: 4.7,
     reviewsCount: 210,
-    offerText: 'BUY 1 @ Rs.570',
+    offerText: 'BUY 1 @ Rs.320',
     tag: 'BESTSELLER'
   },
   {
@@ -135,7 +135,7 @@ const PRODUCT_CATALOG = [
     category: 'polo-shirts',
     categoryName: 'Clothing & Apparel',
     price: 1640,
-    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/NVHP/New%20Home%20Page/NEW%20-%20NVHP%20Tiles/Top%20Selling%20Bulk%20Products/IN_NVHPTiles_Puma-Polo-T-shirts-01',
+    image: '/ai_model_polo_tshirt.png',
     rating: 4.8,
     reviewsCount: 94,
     offerText: 'BUY 1 @ Rs.1640',
@@ -186,12 +186,174 @@ const PRODUCT_CATALOG = [
     name: 'Single Fold Umbrellas',
     category: 'rainwear',
     categoryName: 'Rainwear',
-    price: 860,
-    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/NVHP/New%20Home%20Page/NEW%20-%20NVHP%20Tiles/Trending%20Products/Single-Fold-Umbrellas_01',
+    price: 655,
+    image: '/ai_model_rainwear.png',
     rating: 4.5,
     reviewsCount: 33,
-    offerText: 'BUY 1 @ Rs. 860',
+    offerText: 'BUY 1 @ Rs. 655',
     tag: 'NEW'
+  },
+
+  // New Products - Pens
+  {
+    id: 'customizedPens',
+    name: 'Customized Pens',
+    category: 'pens',
+    categoryName: 'Pens & Writing',
+    price: 150,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Pens/Bestsellers/Customized-Pens_01',
+    rating: 4.6,
+    reviewsCount: 78,
+    offerText: 'Pack of 5 @ Rs.150',
+    tag: 'BESTSELLER'
+  },
+  {
+    id: 'personalisedPens',
+    name: 'Personalised Pens',
+    category: 'pens',
+    categoryName: 'Pens & Writing',
+    price: 180,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Pens/Bestsellers/Personalised-Pens_01',
+    rating: 4.7,
+    reviewsCount: 56,
+    offerText: 'BUY 1 @ Rs.180',
+    tag: ''
+  },
+  {
+    id: 'premiumMagneticPens',
+    name: 'Premium Magnetic Metal Roller Pens',
+    category: 'pens',
+    categoryName: 'Pens & Writing',
+    price: 350,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Pens/Bestsellers/Premium-Magnetic-Metal-Roller-Pens_01',
+    rating: 4.8,
+    reviewsCount: 42,
+    offerText: 'BUY 1 @ Rs.350',
+    tag: 'POPULAR'
+  },
+  {
+    id: 'blackMattePens',
+    name: 'Black Matte Ball Pens',
+    category: 'pens',
+    categoryName: 'Pens & Writing',
+    price: 190,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Pens/Bestsellers/Black-Matte-Ball-Pens_01',
+    rating: 4.5,
+    reviewsCount: 29,
+    offerText: 'BUY 1 @ Rs.190',
+    tag: ''
+  },
+  {
+    id: 'parkerOdysseyPen',
+    name: 'Parker Odyssey Laque Black Gold Trim Roller Ball Pen',
+    category: 'pens',
+    categoryName: 'Pens & Writing',
+    price: 999,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Pens/Luxury/Parker-Odyssey-Laque-Black_01',
+    rating: 4.9,
+    reviewsCount: 19,
+    offerText: 'BUY 1 @ Rs.999',
+    tag: 'LUXURY'
+  },
+
+  // New Products - Drinkware
+  {
+    id: 'customWaterBottles',
+    name: 'Custom Water Bottles',
+    category: 'drinkware',
+    categoryName: 'Drinkware',
+    price: 399,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Drinkware/Bestsellers/Custom-Water-Bottles_01',
+    rating: 4.7,
+    reviewsCount: 93,
+    offerText: 'BUY 1 @ Rs.399',
+    tag: 'BESTSELLER'
+  },
+  {
+    id: 'tempDisplayBottles',
+    name: 'Temperature Display Bottles',
+    category: 'drinkware',
+    categoryName: 'Drinkware',
+    price: 499,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Drinkware/Bestsellers/Temperature-Display-Bottles_01',
+    rating: 4.6,
+    reviewsCount: 65,
+    offerText: 'BUY 1 @ Rs.499',
+    tag: 'NEW'
+  },
+  {
+    id: 'celloDuroKentBottles',
+    name: 'Cello Duro Kent Water Bottles',
+    category: 'drinkware',
+    categoryName: 'Drinkware',
+    price: 599,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Drinkware/Bestsellers/Cello-Duro-Kent-Water-Bottles_01',
+    rating: 4.8,
+    reviewsCount: 88,
+    offerText: 'BUY 1 @ Rs.599',
+    tag: 'POPULAR'
+  },
+  {
+    id: 'skinnyTumbler',
+    name: 'Personalised Skinny Tumbler 600ml',
+    category: 'drinkware',
+    categoryName: 'Drinkware',
+    price: 450,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Drinkware/Sippers/Personalised-Skinny-Tumbler_01',
+    rating: 4.5,
+    reviewsCount: 37,
+    offerText: 'BUY 1 @ Rs.450',
+    tag: ''
+  },
+  {
+    id: 'customisedBeerMugs',
+    name: 'Customised Beer Mugs',
+    category: 'drinkware',
+    categoryName: 'Drinkware',
+    price: 350,
+    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/Drinkware/New/Customised-Beer-Mugs_01',
+    rating: 4.6,
+    reviewsCount: 42,
+    offerText: 'BUY 1 @ Rs.350',
+    tag: 'NEW'
+  },
+
+  // New Products - Rainwear
+  {
+    id: 'golfUmbrella',
+    name: 'Golf Umbrellas',
+    category: 'rainwear',
+    categoryName: 'Rainwear',
+    price: 950,
+    image: '/ai_model_rainwear.png',
+    rating: 4.7,
+    reviewsCount: 22,
+    offerText: 'BUY 1 @ Rs.950',
+    tag: 'BESTSELLER'
+  },
+  {
+    id: 'sunTwoFoldUmbrella',
+    name: 'Sun Two Fold Umbrellas',
+    category: 'rainwear',
+    categoryName: 'Rainwear',
+    price: 550,
+    image: '/ai_model_rainwear.png',
+    rating: 4.4,
+    reviewsCount: 15,
+    offerText: 'BUY 1 @ Rs.550',
+    tag: 'NEW'
+  },
+  {
+    id: 'scottWaterproofJacket',
+    name: 'Scott Waterproof Jackets',
+    category: 'rainwear',
+    categoryName: 'Rainwear',
+    price: 1250,
+    image: '/ai_model_rainwear.png',
+    rating: 4.8,
+    reviewsCount: 31,
+    offerText: 'BUY 1 @ Rs.1250',
+    tag: 'POPULAR'
   }
 ];
 
@@ -271,37 +433,216 @@ const CATEGORIES = [
     ]
   },
   {
+    id: 'pens',
+    name: 'Pens & Writing',
+    columns: [
+      {
+        title: 'Bestsellers',
+        items: [
+          { name: 'Customized Pens', productId: 'customizedPens' },
+          { name: 'Personalised Pens', productId: 'personalisedPens' },
+          { name: 'Premium Magnetic Metal Roller Pens', productId: 'premiumMagneticPens' },
+          { name: 'Submarine Sleek Metal Roller Pens' },
+          { name: 'Plastic Pens' },
+          { name: 'Sleek Metal Ballpoint Pens' },
+          { name: 'Premium Brass Metal Golden Ball Pens' },
+          { name: 'Black Matte Ball Pens', productId: 'blackMattePens' }
+        ]
+      },
+      {
+        title: 'Value Pens',
+        items: [
+          { name: 'Triangle Wire Clip Ball Pens' },
+          { name: 'Grand Opaque Ballpoint Pen' },
+          { name: 'New Getz Cap Type Ballpoint Pens' },
+          { name: 'Twist Plastic Ball Pens' },
+          { name: 'New Cap Plastic Ball Pens' },
+          { name: 'Getz Opaque Push Type Ballpoint Pen' }
+        ]
+      },
+      {
+        title: 'Executive Pens',
+        items: [
+          { name: 'Submarine Sleek Metal Roller Pens' },
+          { name: 'Submarine Artistic Plastic Pens with Round Ring' },
+          { name: 'Submarine Mini Flat Clip Rose Gold Tip Metal Pens' },
+          { name: 'Executive Metal Ball Pen' },
+          { name: 'Black Matte Roller Pens' },
+          { name: 'Submarine Premium Xylo Steel Finish Roller Pens' },
+          { name: 'Submarine Gold Plated Ball Pens' }
+        ]
+      },
+      {
+        title: 'Premium Pens',
+        items: [
+          { name: 'Premium Matte Pens' },
+          { name: 'Black Matte Ball Pens', productId: 'blackMattePens' },
+          { name: 'Premium Brush Stone Black Ballpoint Pens' },
+          { name: 'Submarine Roller Pens with Swarovski Crystal' },
+          { name: 'Marble Design Metal Ball Pens' },
+          { name: 'Submarine Fountain Pens' },
+          { name: 'Submarine Liberty Watermark Ball Pens' }
+        ]
+      },
+      {
+        title: 'Luxury Pens',
+        items: [
+          { name: 'Parker Odyssey Laque Black Gold Trim Roller Ball Pen', productId: 'parkerOdysseyPen' },
+          { name: 'Parker Odyssey Laque Black Chrome Trim Ball Pen' },
+          { name: 'SwissBrand® Legacy Trim Roller Ball Pens' },
+          { name: 'SwissBrand® Eternia Fountain Pens' },
+          { name: 'SwissBrand® Zenith Trim Roller Ball Pens' }
+        ]
+      },
+      {
+        title: 'Newly Launched',
+        items: [
+          { name: 'Promotional Pens' },
+          { name: 'Click Ball Pens' },
+          { name: 'Bulk Ball Pens' },
+          { name: 'Green with Silver Ball Pens' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'drinkware',
+    name: 'Drinkware',
+    columns: [
+      {
+        title: 'BestSellers',
+        items: [
+          { name: 'Custom Water Bottles', productId: 'customWaterBottles' },
+          { name: 'Customised Tumblers' },
+          { name: 'Cello Duro Kent Water Bottles', productId: 'celloDuroKentBottles' },
+          { name: 'Temperature Display Bottles', productId: 'tempDisplayBottles' },
+          { name: 'Stainless Steel Sipper Bottles' }
+        ]
+      },
+      {
+        title: 'Water Bottles',
+        items: [
+          { name: 'Cello Duro Flip Water Bottles' },
+          { name: 'Custom Sipper Bottles' },
+          { name: 'Vacuum Bottles' },
+          { name: 'Cello Swift Bottles' },
+          { name: 'Inox Bottles' },
+          { name: 'Gym Bottles' },
+          { name: 'Thermal Suction Bottles' }
+        ]
+      },
+      {
+        title: 'Sippers & Tumblers',
+        items: [
+          { name: 'Personalised Skinny Tumbler 600ml', productId: 'skinnyTumbler' },
+          { name: 'Aluminium Water Bottles' },
+          { name: 'Wine Tumbler' },
+          { name: 'Personalized Travel Tumbler' },
+          { name: 'Pexpo Cocoa Vacuum Steel Tumblers', isNew: true }
+        ]
+      },
+      {
+        title: 'Looking for more?',
+        items: [
+          { name: 'Vacuum Insulation Cup' },
+          { name: 'Water Bottle with Wireless Speaker' },
+          { name: 'Cello Flip Style Water Flasks' },
+          { name: 'Insulated Vacuum Coffee Flasks' },
+          { name: 'Frosted Beer Mugs' },
+          { name: 'Hip Flask - 7 OZ - Black' },
+          { name: 'Printed Cola Bottles 600ml' }
+        ]
+      },
+      {
+        title: 'New in Drinkware',
+        items: [
+          { name: 'Temperature Display Mugs' },
+          { name: 'Customised Beer Mugs', productId: 'customisedBeerMugs' },
+          { name: 'Personalised Champagne Glasses' },
+          { name: 'Personalised Wine Glasses' },
+          { name: 'Personalised Vacuum Insulated Tumbler' },
+          { name: 'Pexpo Austin Steel Water Bottles', isNew: true },
+          { name: 'Pexpo Cameo Compact Steel Bottles', isNew: true },
+          { name: 'Pexpo Morocco Thermo Steel Bottles', isNew: true },
+          { name: 'Pexpo Orio Thermo Steel Bottles', isNew: true },
+          { name: 'Pexpo Bravo Vacuum Bottles', isNew: true }
+        ]
+      }
+    ]
+  },
+  {
     id: 'polo-shirts',
     name: 'Custom Polo Shirts',
     columns: [
       {
-        title: 'Custom Polo Shirts',
+        title: 'Bestsellers',
         items: [
           { name: "Men's Polo T-Shirts", productId: 'embroideredMensPoloTShirts' },
-          { name: 'Puma® Polo T-shirts', productId: 'pumaPoloTShirtsIndia' }
+          { name: "Women's Polo T-shirts" },
+          { name: 'Premium Polo T-Shirts' },
+          { name: 'Printed Polos - Multi Location' },
+          { name: "Men's Scott Polo T-Shirts" },
+          { name: 'Embroidered Polos - Multi Location' },
+          { name: 'Polyester Polo T-Shirts' }
         ]
       },
       {
-        title: 'Custom T-Shirts',
+        title: 'Branded Polos',
         items: [
-          { name: 'Unisex T-Shirts' },
-          { name: "Women's T-Shirts" },
-          { name: 'Full Sleeve T-Shirts' }
+          { name: "Women's Scott Polo T-Shirts" },
+          { name: 'Mark & Spencer® Polo T-Shirts' },
+          { name: 'Parx® Premium Polo T-Shirts' },
+          { name: 'Levi\'s® Polo T-Shirts' },
+          { name: 'Arrow® Tipping Polo T-Shirts' },
+          { name: 'Monte Carlo® Polo T-Shirts' },
+          { name: 'US POLO ASSN.® Polo T-Shirts' },
+          { name: 'Woodland® Polo T-Shirts' },
+          { name: 'Arrow® Mercerized Polo T-Shirts' }
         ]
       },
       {
-        title: 'Custom Caps',
+        title: 'Multi-location Polos',
         items: [
-          { name: 'Embroidered Caps' },
-          { name: 'Printed Caps' }
+          { name: 'Polyester Polos - Multi Location' },
+          { name: 'Full Custom Polo T-Shirts' }
         ]
       },
       {
-        title: 'Custom Bags',
+        title: 'Puma & Adidas',
         items: [
-          { name: 'Printed Tote Bags', productId: 'printedToteBags' },
-          { name: 'Drawstring Bags' },
-          { name: 'Backpacks' }
+          { name: 'Puma® Polo T-shirts', productId: 'pumaPoloTShirtsIndia' },
+          { name: 'Adidas® 3 stripe Polo T-shirts' },
+          { name: 'Adidas® Polycotton T-shirts' },
+          { name: 'Adidas® Climalite Dryfit Polo T-shirts' },
+          { name: 'Adidas® Polo T-Shirts' },
+          { name: 'Adidas Men\'s Polo T-Shirts' }
+        ]
+      },
+      {
+        title: 'Sports Polos',
+        items: [
+          { name: 'Sports Republic Acti-Play Dryfit Polo T-Shirts - Men' },
+          { name: '6 Degree Polo T-Shirts' },
+          { name: 'Golfer Polo T-Shirts' },
+          { name: 'Flying Machine® Dry Fit Polo T-Shirts' },
+          { name: 'Sports Republic ACTI - PLAY Dry-Fit POLO Neck Front' },
+          { name: 'Dry Fit Golf Polo T-Shirts' },
+          { name: 'Sports Republic ACTI - PLAY Dry-Fit POLO Neck-Back' },
+          { name: 'Pocket Polo T-Shirts' }
+        ]
+      },
+      {
+        title: 'More in Polos',
+        items: [
+          { name: 'Pikmee Tipline Double tipped Polo T-shirts - Men (Back Side)' },
+          { name: 'Pikmee Highline Polo T-Shirts' },
+          { name: 'Pikmee Fastees Polo T shirts - Men (Back & Left) old' },
+          { name: 'Pikmee Promo Tees Polo T-Shirts' },
+          { name: 'Pikmee Titlis Climate Control Polo T Shirts - Men' },
+          { name: 'TURMS Anti Stain Polo T-Shirts' },
+          { name: 'Bulk Polo T Shirts' },
+          { name: 'Safety Reflector Polos' },
+          { name: 'Two Tone Polo T-Shirts' }
         ]
       }
     ]
@@ -345,15 +686,6 @@ const CATEGORIES = [
           { name: 'Photo Magnets' },
           { name: 'Magnetic Visiting Cards' },
           { name: 'Acrylic Photo Magnets' }
-        ]
-      },
-      {
-        title: 'Custom Pens',
-        items: [
-          { name: 'Customized Pens' },
-          { name: 'Personalised Pens' },
-          { name: 'Premium Magnetic Metal Roller Pens' },
-          { name: 'Wooden Finish Metal Ball Pens' }
         ]
       },
       {
@@ -424,53 +756,49 @@ const CATEGORIES = [
     name: 'Signs, Banners & Rainwear',
     columns: [
       {
-        title: 'Signs and Posters',
+        title: 'Bestsellers',
         items: [
-          { name: 'Standees' },
-          { name: 'Posters' },
-          { name: 'Bulk Posters' },
-          { name: 'Banners' }
-        ]
-      },
-      {
-        title: 'Marketing Materials',
-        items: [
-          { name: 'Flyers' },
-          { name: 'Brochures' },
-          { name: 'Booklets' },
-          { name: 'Bulk Flyers' }
-        ]
-      },
-      {
-        title: 'More in Signs',
-        items: [
-          { name: 'Acrylic signs' },
-          { name: 'Outdoor Signs' },
-          { name: 'Plastic Signboards' }
-        ]
-      },
-      {
-        title: 'More in Marketing',
-        items: [
-          { name: 'Custom Car Door Decals' },
-          { name: 'Customised Promo Tables', isNew: true },
-          { name: 'Custom Logo Flags', isNew: true }
-        ]
-      },
-      {
-        title: 'Flags & Table Coverings',
-        items: [
-          { name: 'Custom Tablecloths' },
-          { name: 'Table Runners' },
-          { name: 'Table Flags', isNew: true },
-          { name: 'Cross Stand Table Flags' }
-        ]
-      },
-      {
-        title: 'Rainwear',
-        items: [
+          { name: 'Golf Umbrellas', productId: 'golfUmbrella' },
           { name: 'Single Fold Umbrellas', productId: 'singleFoldUmbrella' },
-          { name: 'Double Fold Umbrellas' }
+          { name: 'Bulk Single Fold Umbrellas' },
+          { name: 'Mirage Safari Rain Suit' },
+          { name: 'Rainsuits' },
+          { name: 'Industrial Safety Rainsuits' },
+          { name: 'Poncho Raincoats' }
+        ]
+      },
+      {
+        title: 'Umbrellas',
+        items: [
+          { name: 'Two-Fold Umbrellas' },
+          { name: 'Sun Three Fold Umbrellas' },
+          { name: 'Promotional Umbrellas' },
+          { name: 'Sun Two Fold Umbrellas', productId: 'sunTwoFoldUmbrella', isNew: true }
+        ]
+      },
+      {
+        title: 'Raincoats & Rainwear',
+        items: [
+          { name: 'Scott Waterproof Jackets', productId: 'scottWaterproofJacket' },
+          { name: 'Waterproof Jackets' },
+          { name: 'Rain Suit LBW Safari' },
+          { name: 'Skylark Safari Rain Suit' },
+          { name: 'Raincare Safari Rain Suit' },
+          { name: 'Kiara Kids Raincoats' },
+          { name: 'Kiara Women\'s Long Raincoats' },
+          { name: 'Foldable Waterproof Jackets', isNew: true }
+        ]
+      },
+      {
+        title: 'Explore More',
+        items: [
+          { name: 'Bulk Golf Umbrellas' },
+          { name: 'Waterproof Rain Caps' },
+          { name: 'Freedom Rain Caps', isNew: true },
+          { name: 'Waterproof Bag Covers', isNew: true },
+          { name: 'Bulk Two-Fold Umbrellas', isNew: true },
+          { name: 'Bulk Three-Fold Umbrellas', isNew: true },
+          { name: 'Basic Promotional Golf Umbrellas', isNew: true }
         ]
       }
     ]
@@ -643,10 +971,10 @@ function App() {
       setLoginNotification('');
       
       if (redirectAfterLogin) {
-        setView(redirectAfterLogin);
+        setViewWithHistory(redirectAfterLogin);
         setRedirectAfterLogin(null);
       } else {
-        setView('account');
+        setViewWithHistory('account');
       }
     }, 1200);
   };
@@ -656,7 +984,7 @@ function App() {
     setUser(null);
     setLoginStep('credentials');
     setLoginNotification('');
-    setView('home');
+    setViewWithHistory('home');
   };
 
   const handleToggleTheme = () => {
@@ -714,12 +1042,62 @@ function App() {
     );
   };
 
+  // Browser History Sync Helpers
+  const pushHistoryState = (v, prodId = null, catFilter = null, sFilter = null) => {
+    window.history.pushState({
+      view: v,
+      selectedProductId: prodId,
+      selectedCategoryFilter: catFilter !== null ? catFilter : selectedCategoryFilter,
+      searchFilter: sFilter !== null ? sFilter : searchFilter
+    }, '', '');
+  };
+
+  const setViewWithHistory = (v) => {
+    setView(v);
+    pushHistoryState(v, selectedProduct ? selectedProduct.id : null);
+  };
+
+  useEffect(() => {
+    const handlePopState = (event) => {
+      if (event.state) {
+        const { view: v, selectedProductId, selectedCategoryFilter: catFilter, searchFilter: sFilter } = event.state;
+        setView(v || 'home');
+        if (selectedProductId) {
+          const prod = PRODUCT_CATALOG.find(p => p.id === selectedProductId);
+          setSelectedProduct(prod || null);
+        } else {
+          setSelectedProduct(null);
+        }
+        if (catFilter) setSelectedCategoryFilter(catFilter);
+        if (sFilter !== undefined) setSearchFilter(sFilter);
+      } else {
+        setView('home');
+        setSelectedProduct(null);
+        setSelectedCategoryFilter('all');
+        setSearchFilter('');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    
+    // Set initial state
+    window.history.replaceState({
+      view: 'home',
+      selectedProductId: null,
+      selectedCategoryFilter: 'all',
+      searchFilter: ''
+    }, '', '');
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedProduct, selectedCategoryFilter, searchFilter]);
+
   // Select product to customize
   const handleSelectProduct = (productId) => {
     const prod = PRODUCT_CATALOG.find(p => p.id === productId);
     if (prod) {
       setSelectedProduct(prod);
       setView('customizer');
+      pushHistoryState('customizer', productId);
       window.scrollTo(0, 0);
     }
   };
@@ -729,14 +1107,19 @@ function App() {
     setView(target);
     setSearchFilter('');
     
+    let catFilter = 'all';
     // Check if target is a category filter
     const foundCat = CATEGORIES.find(c => c.id === target);
     if (foundCat) {
       setSelectedCategoryFilter(target);
+      catFilter = target;
       setView('home');
     } else if (target === 'home') {
       setSelectedCategoryFilter('all');
+      catFilter = 'all';
     }
+    
+    pushHistoryState(foundCat ? 'home' : target, null, catFilter, '');
     window.scrollTo(0, 0);
   };
 
@@ -745,6 +1128,7 @@ function App() {
     setSearchFilter(query);
     setSelectedCategoryFilter('all');
     setView('home');
+    pushHistoryState('home', null, 'all', query);
   };
 
   // Cart operations
@@ -752,6 +1136,7 @@ function App() {
     setCart(prev => [...prev, cartItem]);
     setView('home');
     setIsCartOpen(true);
+    pushHistoryState('home', null, selectedCategoryFilter, searchFilter);
   };
 
   const handleUpdateQty = (index, newQty) => {
@@ -778,9 +1163,9 @@ function App() {
     setIsCartOpen(false);
     if (!isLoggedIn) {
       setRedirectAfterLogin('checkout');
-      setView('account');
+      setViewWithHistory('account');
     } else {
-      setView('checkout');
+      setViewWithHistory('checkout');
     }
     window.scrollTo(0, 0);
   };
@@ -809,7 +1194,7 @@ function App() {
       }));
     }
     setCart([]); // Clear cart
-    setView('success');
+    setViewWithHistory('success');
     window.scrollTo(0, 0);
   };
 
@@ -924,7 +1309,7 @@ function App() {
           <Customizer 
             product={selectedProduct}
             onAddToCart={handleAddToCart}
-            onGoBack={() => setView('home')}
+            onGoBack={() => setViewWithHistory('home')}
           />
         )}
 
@@ -935,7 +1320,7 @@ function App() {
             grandTotal={checkoutPriceBreakup.total}
             promoDiscount={checkoutPriceBreakup.discount}
             onOrderSuccess={handleOrderSuccess}
-            onGoBack={() => setView('home')}
+            onGoBack={() => setViewWithHistory('home')}
             user={user}
           />
         )}
@@ -1023,7 +1408,7 @@ function App() {
                 🛡️ Backed by Cimpress 100% Satisfaction Guarantee. 
               </p>
 
-              <button className="btn btn-secondary" onClick={() => setView('home')} style={{marginTop: '20px'}}>
+              <button className="btn btn-secondary" onClick={() => setViewWithHistory('home')} style={{marginTop: '20px'}}>
                 Return to Shop Home Page
               </button>
             </div>
@@ -1039,7 +1424,7 @@ function App() {
               <div style={styles.emptyMsg}>
                 <span style={{fontSize: '48px'}}>🤍</span>
                 <p>You haven't bookmarked any print designs yet.</p>
-                <button className="btn btn-primary" onClick={() => setView('home')} style={{marginTop: '16px'}}>
+                <button className="btn btn-primary" onClick={() => setViewWithHistory('home')} style={{marginTop: '16px'}}>
                   Browse Bestsellers
                 </button>
               </div>
@@ -1475,7 +1860,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    backgroundColor: '#fafafa',
+    backgroundColor: '#ffffff',
     boxShadow: 'var(--shadow-sm)',
     height: 'fit-content',
   },
@@ -1669,7 +2054,7 @@ const styles = {
     gap: '12px',
     backgroundColor: '#ffffff',
     color: '#1f1f1f',
-    border: '1px solid #d1d5db',
+    border: '1.5px solid var(--color-border)',
     borderRadius: 'var(--radius-full)',
     padding: '12px 24px',
     fontSize: '15px',
@@ -1697,7 +2082,7 @@ const styles = {
     width: '100%',
     padding: '12px',
     borderRadius: '8px',
-    border: '1.5px solid #d1d5db',
+    border: '1.5px solid var(--color-border)',
     backgroundColor: '#ffffff',
     color: '#1d1d1d',
     fontWeight: '600',
@@ -1715,7 +2100,7 @@ const styles = {
     width: '100%',
     padding: '12px 16px',
     borderRadius: '8px',
-    border: '1.5px solid #d1d5db',
+    border: '1.5px solid var(--color-border)',
     fontSize: '14px',
     outline: 'none',
     boxSizing: 'border-box',
@@ -1736,7 +2121,7 @@ const styles = {
     borderRadius: '8px',
     backgroundColor: '#ffffff',
     color: '#1d1d1d',
-    border: '1.5px solid #1d1d1d',
+    border: '1.5px solid var(--color-border)',
     fontWeight: '600',
     fontSize: '15px',
     cursor: 'pointer',

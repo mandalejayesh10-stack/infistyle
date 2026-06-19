@@ -93,7 +93,8 @@ const styles = {
     width: '48px',
     height: '48px',
     borderRadius: '50%',
-    backgroundColor: '#f4f6fa',
+    backgroundColor: '#ffffff',
+    border: '1.5px solid var(--color-border)',
     color: 'var(--color-secondary)',
   },
   icon: {

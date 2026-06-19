@@ -8,8 +8,8 @@
   --color-accent-hover: #e5b800;
   --color-cream: #ffffff;        /* Pure White */
   --color-white: #ffffff;
-  --color-light-gray: #f4f6fa;   /* Clean light gray background */
-  --color-border: #e2e8f0;       /* Slate border */
+  --color-light-gray: #ffffff;   /* Clean light gray background */
+  --color-border: #ffcc00;       /* Slate border */
   --color-text-dark: #0c0d10;    /* Crisp dark text */
   --color-text-muted: #4b5563;   /* Slate muted text */
   --color-promo-bg: #111111;     /* Black promo bar background */
@@ -78,6 +78,13 @@ button {
 input, select, textarea {
   font-family: inherit;
   font-size: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-secondary) !important;
+  box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.15) !important;
+  outline: none;
 }
 
 /* Animations */
@@ -256,7 +263,7 @@ input, select, textarea {
 /* Search Form styling */
 .site-search-form {
   display: flex;
-  border: 1.5px solid var(--color-primary);
+  border: 1.5px solid var(--color-accent);
   border-radius: 8px;
   overflow: hidden;
   background-color: #ffffff;
@@ -299,7 +306,7 @@ input, select, textarea {
 
 /* Nav Item hover dropdowns */
 nav > div > div {
-  position: relative;
+  position: static;
 }
 
 nav > div > div:hover > .nav-dropdown {
@@ -325,8 +332,8 @@ nav > div > div:hover > .nav-dropdown {
 /* Product cards micro-animations */
 .product-card:hover {
   transform: translateY(-6px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(47, 58, 83, 0.15) !important;
+  box-shadow: 0 8px 24px rgba(255, 204, 0, 0.25);
+  border-color: var(--color-accent-hover) !important;
 }
 
 .product-card:hover img {
@@ -598,10 +605,9 @@ nav > div > div:hover > .nav-dropdown {
   display: none;
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90vw;
-  max-width: 1200px;
+  left: 0;
+  right: 0;
+  width: 100%;
   background-color: #ffffff;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-lg);

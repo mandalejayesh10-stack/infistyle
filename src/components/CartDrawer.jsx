@@ -257,7 +257,7 @@ const styles = {
     height: '72px',
     objectFit: 'cover',
     borderRadius: 'var(--radius-md)',
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#ffffff',
     border: '1px solid var(--color-border)',
   },
   itemDetails: {
@@ -318,7 +318,7 @@ const styles = {
   footer: {
     padding: '24px',
     borderTop: '1px solid var(--color-border)',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#ffffff',
   },
   promoWrapper: {
     marginBottom: '20px',

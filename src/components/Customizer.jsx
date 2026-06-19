@@ -545,7 +545,7 @@ const styles = {
     cursor: 'pointer',
   },
   canvasFrame: {
-    backgroundColor: '#eaeaea',
+    backgroundColor: '#fffdf5',
     width: '100%',
     height: '320px',
     borderRadius: 'var(--radius-lg)',
@@ -553,7 +553,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    border: '1px solid var(--color-border)',
+    border: '2px solid var(--color-accent)',
     boxShadow: 'var(--shadow-sm) inset',
   },
   businessCard: {

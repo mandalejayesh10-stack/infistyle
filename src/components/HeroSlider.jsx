@@ -9,8 +9,8 @@ const HeroSlider = ({ onAction }) => {
       description: "100 Visiting Cards at Rs 200. First impressions that last.",
       cta: "Shop Now",
       target: "businessCards",
-      image: "https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_960/India%20LOB/PhonePe%20Landing%20Page/IN_VC_IT_Marquee_02",
-      bg: "#f3f4f6"
+      image: "/ai_model_visiting_card.png",
+      bg: "#ffffff"
     },
     {
       title: "Custom Rainwear & Umbrellas",
@@ -18,7 +18,7 @@ const HeroSlider = ({ onAction }) => {
       cta: "Explore Umbrellas",
       target: "umbrellas",
       image: "/ai_model_rainwear.png",
-      bg: "#eef2f6"
+      bg: "#ffffff"
     },
     {
       title: "Preserve Cherished Moments",
@@ -26,7 +26,7 @@ const HeroSlider = ({ onAction }) => {
       cta: "Create Album",
       target: "photoGifts",
       image: "https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_960/India%20LOB/NVHP/New%20Home%20Page/Production/14th%20Nov%202024/IN_Photo-Album_Wedding_Marquee_01",
-      bg: "#f8f6f2"
+      bg: "#ffffff"
     },
     {
       title: "Wear Your Brand with Pride",
@@ -34,7 +34,7 @@ const HeroSlider = ({ onAction }) => {
       cta: "Shop Apparel",
       target: "poloTShirts",
       image: "/ai_model_polo_tshirt.png",
-      bg: "#f5f5f5"
+      bg: "#ffffff"
     }
   ];
 
