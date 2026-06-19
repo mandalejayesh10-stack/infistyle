@@ -17,7 +17,7 @@ const HeroSlider = ({ onAction }) => {
       description: "Look professional even in the rain. Starting at Rs. 655.",
       cta: "Explore Umbrellas",
       target: "umbrellas",
-      image: "https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_960/India%20LOB/NVHP/New%20Home%20Page/Production/Rainwear/NEW_Raincoat-_-Umbrellas_Marquee_01",
+      image: "/ai_model_rainwear.png",
       bg: "#eef2f6"
     },
     {
@@ -33,7 +33,7 @@ const HeroSlider = ({ onAction }) => {
       description: "Custom Printed & Embroidered Polo T-shirts. Starting at Rs. 320.",
       cta: "Shop Apparel",
       target: "poloTShirts",
-      image: "https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_960/India%20LOB/NVHP/New%20Home%20Page/Production/3rd%20Feb%202025/IN_Polo_PrintedT-Shirts_Marquee_01_1",
+      image: "/ai_model_polo_tshirt.png",
       bg: "#f5f5f5"
     }
   ];

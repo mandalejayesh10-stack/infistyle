@@ -147,7 +147,7 @@ const PRODUCT_CATALOG = [
     category: 'photo-gifts',
     categoryName: 'Photo Gifts',
     price: 280,
-    image: 'https://cms.cloudinary.vpsvc.com/image/upload/c_scale,dpr_auto,f_auto,w_450/India%20LOB/NVHP/New%20Home%20Page/NEW%20-%20NVHP%20Tiles/Top%20Selling%20Bulk%20Products/IN_NVHPTiles_Mugs_03',
+    image: '/personalised_coffee_mug.png',
     rating: 4.6,
     reviewsCount: 185,
     offerText: 'BUY 1 @ Rs.280',
@@ -196,65 +196,283 @@ const PRODUCT_CATALOG = [
 ];
 
 const CATEGORIES = [
-  { 
-    id: 'visiting-cards', 
-    name: 'Visiting Cards', 
-    subcategories: [
-      { name: 'Standard Visiting Cards', productId: 'standardBusinessCards' },
-      { name: 'Rounded Corner Cards', productId: 'roundedCornerBusinessCards' }
+  {
+    id: 'visiting-cards',
+    name: 'Visiting Cards',
+    columns: [
+      {
+        title: 'Visiting Cards',
+        items: [
+          { name: 'Standard Visiting Cards', productId: 'standardBusinessCards' },
+          { name: 'Rounded Corner Cards', productId: 'roundedCornerBusinessCards' },
+          { name: 'Square Visiting Cards' },
+          { name: 'Folded Visiting Cards' }
+        ]
+      },
+      {
+        title: 'Visiting Card Holders',
+        items: [
+          { name: 'Metal Card Holders' },
+          { name: 'Leather Card Holders' }
+        ]
+      }
     ]
   },
-  { 
-    id: 'stationery', 
+  {
+    id: 'stationery',
     name: 'Stationery & Notebooks',
-    subcategories: [
-      { name: 'Premium Letterheads', productId: 'letterhead' }
+    columns: [
+      {
+        title: 'Custom Stationery',
+        items: [
+          { name: 'Premium Letterheads', productId: 'letterhead' },
+          { name: 'Custom Letterhead Pads' },
+          { name: 'Bill Books' },
+          { name: 'Envelopes' },
+          { name: 'Envelope Seals' }
+        ]
+      },
+      {
+        title: 'Office Supplies',
+        items: [
+          { name: 'Lanyards' },
+          { name: 'ID Cards' },
+          { name: 'Invoice Books' },
+          { name: 'Note Cards' },
+          { name: 'Custom Certificates' }
+        ]
+      },
+      {
+        title: 'Notebooks & Diaries',
+        items: [
+          { name: 'Personalised Notebooks' },
+          { name: 'Diary with Pen Holder' },
+          { name: 'Personalised A5 Diary' },
+          { name: 'Diary with Magnetic Lock' }
+        ]
+      },
+      {
+        title: 'Invitations',
+        items: [
+          { name: 'Wedding Invitations' },
+          { name: 'Save The Date Cards' },
+          { name: 'Thank You Cards' },
+          { name: 'Birthday Invitations' }
+        ]
+      },
+      {
+        title: 'Files & Folders',
+        items: [
+          { name: 'Presentation Folders' },
+          { name: 'Ring Binder File' },
+          { name: 'Presentation File with Pocket' }
+        ]
+      }
     ]
   },
-  { 
-    id: 'polo-shirts', 
-    name: 'Custom Polo T-Shirts',
-    subcategories: [
-      { name: "Men's Polo T-Shirts", productId: 'embroideredMensPoloTShirts' },
-      { name: 'Puma® Polo T-shirts', productId: 'pumaPoloTShirtsIndia' }
+  {
+    id: 'polo-shirts',
+    name: 'Custom Polo Shirts',
+    columns: [
+      {
+        title: 'Custom Polo Shirts',
+        items: [
+          { name: "Men's Polo T-Shirts", productId: 'embroideredMensPoloTShirts' },
+          { name: 'Puma® Polo T-shirts', productId: 'pumaPoloTShirtsIndia' }
+        ]
+      },
+      {
+        title: 'Custom T-Shirts',
+        items: [
+          { name: 'Unisex T-Shirts' },
+          { name: "Women's T-Shirts" },
+          { name: 'Full Sleeve T-Shirts' }
+        ]
+      },
+      {
+        title: 'Custom Caps',
+        items: [
+          { name: 'Embroidered Caps' },
+          { name: 'Printed Caps' }
+        ]
+      },
+      {
+        title: 'Custom Bags',
+        items: [
+          { name: 'Printed Tote Bags', productId: 'printedToteBags' },
+          { name: 'Drawstring Bags' },
+          { name: 'Backpacks' }
+        ]
+      }
     ]
   },
-  { 
-    id: 'photo-gifts', 
-    name: 'Photo Mugs & Albums',
-    subcategories: [
-      { name: 'Personalised White Mugs', productId: 'customMugWhite' },
-      { name: 'Photo Albums', productId: 'photobook' }
+  {
+    id: 'photo-gifts',
+    name: 'Photo Gifts & Hampers',
+    columns: [
+      {
+        title: 'Bestsellers',
+        items: [
+          { name: 'Photo Albums' },
+          { name: 'Layflat Photo Albums' },
+          { name: 'Custom Mouse Pads' },
+          { name: 'Canvas Prints' },
+          { name: 'Photo With Frame' },
+          { name: 'Employee Welcome Kit' }
+        ]
+      },
+      {
+        title: 'Mugs',
+        items: [
+          { name: 'Personalised Mugs', productId: 'customMugWhite' },
+          { name: 'Colour Changing Magic Mugs' },
+          { name: 'Custom Mugs Black' },
+          { name: 'Decorative Mugs', isNew: true }
+        ]
+      },
+      {
+        title: 'Gift Hampers',
+        items: [
+          { name: 'Travel Accessories Hampers' },
+          { name: 'Welcome Kit' },
+          { name: 'Hamper with Stainless Steel Bottle' }
+        ]
+      },
+      {
+        title: 'Custom Magnets',
+        items: [
+          { name: 'Fridge Magnets' },
+          { name: 'Photo Magnets' },
+          { name: 'Magnetic Visiting Cards' },
+          { name: 'Acrylic Photo Magnets' }
+        ]
+      },
+      {
+        title: 'Custom Pens',
+        items: [
+          { name: 'Customized Pens' },
+          { name: 'Personalised Pens' },
+          { name: 'Premium Magnetic Metal Roller Pens' },
+          { name: 'Wooden Finish Metal Ball Pens' }
+        ]
+      },
+      {
+        title: 'Custom Calendars',
+        items: [
+          { name: 'Desk Calendars' },
+          { name: 'Wall Calendars' },
+          { name: 'Flip Desk Calendars' },
+          { name: 'Poster Calendars' }
+        ]
+      }
     ]
   },
-  { 
-    id: 'labels-packaging', 
-    name: 'Labels & Stickers',
-    subcategories: [
-      { name: 'Custom Stickers', productId: 'stickers' },
-      { name: 'Sheet Stickers', productId: 'sheetStickers' },
-      { name: 'Product Labels', productId: 'productLabels' }
+  {
+    id: 'labels-packaging',
+    name: 'Labels & Packaging',
+    columns: [
+      {
+        title: 'Custom Packaging',
+        items: [
+          { name: 'Self Adhesive Tapes' },
+          { name: 'Custom Paper Bags' },
+          { name: 'Printed Carry Bags' },
+          { name: 'Premium Gift Bags' },
+          { name: 'Courier Bags' }
+        ]
+      },
+      {
+        title: 'Custom Stickers',
+        items: [
+          { name: 'Custom Stickers', productId: 'stickers' },
+          { name: 'Sheet Stickers', productId: 'sheetStickers' },
+          { name: 'Custom Shape Stickers' },
+          { name: 'UV Ink Transfer Stickers' }
+        ]
+      },
+      {
+        title: 'Custom Labels',
+        items: [
+          { name: 'Product & Packaging Labels', productId: 'productLabels' },
+          { name: 'Return Address Labels' },
+          { name: 'Custom Iron-on Labels' },
+          { name: 'Transparent Labels' }
+        ]
+      },
+      {
+        title: 'Packaging Boxes',
+        items: [
+          { name: 'Promotional Product Boxes', isNew: true },
+          { name: 'Tuck Top Boxes', isNew: true },
+          { name: 'Lock Bottom Boxes' },
+          { name: 'Soap Boxes', isNew: true }
+        ]
+      },
+      {
+        title: 'Newly Launched',
+        items: [
+          { name: 'QR Code Stickers' },
+          { name: 'Frosted Slider Bags' },
+          { name: 'Holographic Stickers' },
+          { name: 'Roll Labels', isNew: true }
+        ]
+      }
     ]
   },
-  { 
-    id: 'bags', 
-    name: 'Custom Bags',
-    subcategories: [
-      { name: 'Printed Tote Bags', productId: 'printedToteBags' }
-    ]
-  },
-  { 
-    id: 'stamps-ink', 
-    name: 'Stamps & Ink',
-    subcategories: [
-      { name: 'Self Inking Stamps', productId: 'selfInkingStamps' }
-    ]
-  },
-  { 
-    id: 'rainwear', 
-    name: 'Rainwear',
-    subcategories: [
-      { name: 'Single Fold Umbrellas', productId: 'singleFoldUmbrella' }
+  {
+    id: 'rainwear',
+    name: 'Signs, Banners & Rainwear',
+    columns: [
+      {
+        title: 'Signs and Posters',
+        items: [
+          { name: 'Standees' },
+          { name: 'Posters' },
+          { name: 'Bulk Posters' },
+          { name: 'Banners' }
+        ]
+      },
+      {
+        title: 'Marketing Materials',
+        items: [
+          { name: 'Flyers' },
+          { name: 'Brochures' },
+          { name: 'Booklets' },
+          { name: 'Bulk Flyers' }
+        ]
+      },
+      {
+        title: 'More in Signs',
+        items: [
+          { name: 'Acrylic signs' },
+          { name: 'Outdoor Signs' },
+          { name: 'Plastic Signboards' }
+        ]
+      },
+      {
+        title: 'More in Marketing',
+        items: [
+          { name: 'Custom Car Door Decals' },
+          { name: 'Customised Promo Tables', isNew: true },
+          { name: 'Custom Logo Flags', isNew: true }
+        ]
+      },
+      {
+        title: 'Flags & Table Coverings',
+        items: [
+          { name: 'Custom Tablecloths' },
+          { name: 'Table Runners' },
+          { name: 'Table Flags', isNew: true },
+          { name: 'Cross Stand Table Flags' }
+        ]
+      },
+      {
+        title: 'Rainwear',
+        items: [
+          { name: 'Single Fold Umbrellas', productId: 'singleFoldUmbrella' },
+          { name: 'Double Fold Umbrellas' }
+        ]
+      }
     ]
   }
 ];

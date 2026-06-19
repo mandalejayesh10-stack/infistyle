@@ -215,7 +215,36 @@ const Header = ({
               {cat.name}
               
               {/* Dropdown Menu Mockup */}
-              {cat.subcategories && (
+              {cat.columns ? (
+                <div className="nav-dropdown-mega">
+                  <div className="mega-grid">
+                    {cat.columns.map((col, cIdx) => (
+                      <div key={cIdx} className="mega-col">
+                        <h4 className="mega-col-title">{col.title}</h4>
+                        <ul className="mega-col-list">
+                          {col.items.map((item, iIdx) => (
+                            <li 
+                              key={iIdx} 
+                              className="mega-col-item"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (item.productId) {
+                                  onSelectProduct(item.productId);
+                                } else {
+                                  onNavigate(cat.id);
+                                }
+                              }}
+                            >
+                              {item.name}
+                              {item.isNew && <span className="new-badge-xs">NEW</span>}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : cat.subcategories ? (
                 <div className="nav-dropdown" style={styles.dropdown}>
                   <div style={styles.dropdownGrid}>
                     {cat.subcategories.map((sub, idx) => (
@@ -236,7 +265,7 @@ const Header = ({
                     ))}
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
           ))}
         </div>
