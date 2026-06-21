@@ -1,28 +1,9 @@
 import Link from 'next/link';
 import { PRODUCT_CATALOG } from '@/lib/catalog';
-import { createClient } from '@/lib/supabase/server';
 import { Palette, QrCode, Rotate3d, Compass, ArrowRight, ShieldCheck, CreditCard, Sparkles, MapPin, Eye } from 'lucide-react';
-import ArrivalsShowcase from '@/components/arrivals-showcase';
 
 export default async function Home() {
   const featuredCategories = PRODUCT_CATALOG.slice(0, 6);
-
-  // Fetch newly created print products from Supabase database
-  let dynamicProducts: any[] = [];
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(3);
-    
-    if (!error && data) {
-      dynamicProducts = data;
-    }
-  } catch (err) {
-    console.error('Error fetching dynamic homepage products:', err);
-  }
 
   return (
     <div className="bg-white">
@@ -182,9 +163,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      {/* 3.5 Dynamic Arrivals Showcase */}
-      <ArrivalsShowcase initialProducts={dynamicProducts} />
 
       {/* 4. Trust and Tech stack highlights */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
