@@ -8,7 +8,7 @@ export default async function Home() {
   return (
     <div className="bg-white">
       {/* 1. Hero Section */}
-      <section className="relative overflow-hidden bg-yellow-50/40 border-b-2 border-primary py-20 lg:py-28">
+      <section className="relative overflow-hidden bg-white border-b-2 border-primary py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
@@ -78,7 +78,7 @@ export default async function Home() {
 
 
       {/* 3. Featured Categories Grid */}
-      <section className="py-16 bg-yellow-50/20 border-t border-b border-primary/20">
+      <section className="py-16 bg-white border-t border-b border-primary/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-10">
             <div>

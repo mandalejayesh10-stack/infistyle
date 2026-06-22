@@ -110,7 +110,7 @@ export default function CanvasEditorClient() {
 
   if (!productData) {
     return (
-      <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <div className="brand-card p-8 bg-white max-w-sm text-center">
           <h2 className="text-xl font-black text-dark-charcoal mb-2">Product Not Configured</h2>
           <p className="text-xs text-gray-500 mb-6 font-semibold">Missing product configuration parameter slug.</p>
@@ -456,7 +456,7 @@ export default function CanvasEditorClient() {
   };
 
   return (
-    <div className="flex flex-col flex-1 h-screen overflow-hidden bg-zinc-50 select-none">
+    <div className="flex flex-col flex-1 h-screen overflow-hidden bg-white select-none">
 
       
       {/* 1. Header Toolbar */}
@@ -737,7 +737,7 @@ export default function CanvasEditorClient() {
             {/* Front Thumbnail */}
             <button
               onClick={() => handleToggleSide('front')}
-              className={`w-full aspect-[4/3] rounded-xl border-2 overflow-hidden flex flex-col items-center justify-center p-1 bg-zinc-50 ${
+              className={`w-full aspect-[4/3] rounded-xl border-2 overflow-hidden flex flex-col items-center justify-center p-1 bg-white ${
                 activeSide === 'front' ? 'border-primary shadow-md' : 'border-gray-200 hover:border-primary'
               }`}
             >
@@ -748,7 +748,7 @@ export default function CanvasEditorClient() {
             {/* Back Thumbnail */}
             <button
               onClick={() => handleToggleSide('back')}
-              className={`w-full aspect-[4/3] rounded-xl border-2 overflow-hidden flex flex-col items-center justify-center p-1 bg-zinc-50 ${
+              className={`w-full aspect-[4/3] rounded-xl border-2 overflow-hidden flex flex-col items-center justify-center p-1 bg-white ${
                 activeSide === 'back' ? 'border-primary shadow-md' : 'border-gray-200 hover:border-primary'
               }`}
             >
