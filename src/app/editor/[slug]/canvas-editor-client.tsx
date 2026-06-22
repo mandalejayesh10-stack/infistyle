@@ -409,7 +409,8 @@ export default function CanvasEditorClient() {
   };
 
   return (
-    <div className="flex flex-col flex-1 h-[calc(100vh-80px)] overflow-hidden bg-zinc-50 select-none">
+    <div className="flex flex-col flex-1 h-screen overflow-hidden bg-zinc-50 select-none">
+
       
       {/* 1. Header Toolbar */}
       <div className="h-14 bg-white border-b-2 border-primary flex items-center justify-between px-6 z-20">

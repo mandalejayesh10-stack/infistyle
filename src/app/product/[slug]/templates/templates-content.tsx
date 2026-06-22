@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getProductBySlug } from '@/lib/catalog';
 import { Search, SlidersHorizontal, ArrowLeft, Paintbrush, FileUp, Sparkles } from 'lucide-react';
@@ -12,8 +12,8 @@ interface DesignTemplate {
   thumbnail: string;
   color: string;
   orientation: 'Horizontal' | 'Vertical';
-  industry: 'Corporate' | 'Wedding' | 'Medical' | 'Creative' | 'Tech';
-  theme: 'Minimal' | 'Bold' | 'Elegant' | 'Vintage';
+  industry: string;
+  theme: string;
   canvasJson: string;
 }
 
@@ -150,10 +150,30 @@ export default function TemplatesContent() {
     );
   }
 
-  const { product } = productData;
+  const { product, category } = productData;
+
+  const [customTemplates, setCustomTemplates] = useState<DesignTemplate[]>([]);
+
+  useEffect(() => {
+    try {
+      const localTplsJson = localStorage.getItem('infistyle_custom_templates');
+      if (localTplsJson) {
+        const allTpls = JSON.parse(localTplsJson);
+        const filtered = allTpls.filter((t: any) => t.productSlug === slug);
+        setCustomTemplates(filtered);
+      }
+    } catch (err) {
+      console.error('Error loading custom templates:', err);
+    }
+  }, [slug]);
+
+  const isVisitingCard = category.name === 'Visiting Cards';
+  const allTemplates = isVisitingCard
+    ? [...MOCK_TEMPLATES, ...customTemplates]
+    : customTemplates;
 
   // Filter templates list
-  const filteredTemplates = MOCK_TEMPLATES.filter(tpl => {
+  const filteredTemplates = allTemplates.filter(tpl => {
     const matchesSearch = tpl.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesColor = selectedColor === 'All' || tpl.color === selectedColor;
     const matchesOrientation = selectedOrientation === 'All' || tpl.orientation === selectedOrientation;

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { PRODUCT_CATALOG, Category } from '@/lib/catalog';
@@ -9,7 +9,11 @@ import { ShoppingCart, User, Heart, Briefcase, Search, Menu, X, ChevronDown, Log
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isEditor = pathname?.startsWith('/editor');
+  
   const [user, setUser] = useState<any>(null);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState(0);
@@ -71,7 +75,10 @@ export default function Header() {
   // We display the major categories directly in the main nav bar
   const mainCategories = PRODUCT_CATALOG;
 
+  if (isEditor) return null;
+
   return (
+
     <header className="sticky top-0 z-50 bg-white border-b-2 border-primary shadow-sm">
       {/* Top Header Row */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

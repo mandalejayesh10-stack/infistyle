@@ -1,9 +1,16 @@
-'use strict';
+'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+  const isEditor = pathname?.startsWith('/editor');
+
+  if (isEditor) return null;
+
   return (
+
     <footer className="bg-dark-charcoal text-white border-t-4 border-primary mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

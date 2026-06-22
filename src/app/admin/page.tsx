@@ -67,6 +67,22 @@ export default function AdminDashboard() {
   const [formFeaturesText, setFormFeaturesText] = useState('');
   const [formImagesList, setFormImagesList] = useState<string[]>(['']);
 
+  // Template Manager States
+  const [showTemplatesModal, setShowTemplatesModal] = useState(false);
+  const [activeProductForTemplates, setActiveProductForTemplates] = useState<ManageProduct | null>(null);
+  const [templatesList, setTemplatesList] = useState<any[]>([]);
+
+  // Template Form States
+  const [templateEditMode, setTemplateEditMode] = useState(false);
+  const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
+  const [formTemplateName, setFormTemplateName] = useState('');
+  const [formTemplateColor, setFormTemplateColor] = useState('White');
+  const [formTemplateOrientation, setFormTemplateOrientation] = useState<'Horizontal' | 'Vertical'>('Horizontal');
+  const [formTemplateIndustry, setFormTemplateIndustry] = useState('Corporate');
+  const [formTemplateTheme, setFormTemplateTheme] = useState('Minimal');
+  const [formTemplateCanvasJson, setFormTemplateCanvasJson] = useState('{"objects":[]}');
+  const [formTemplateThumbnail, setFormTemplateThumbnail] = useState('');
+
   useEffect(() => {
     const checkAdmin = async () => {
       setLoading(true);
@@ -207,6 +223,18 @@ export default function AdminDashboard() {
         }
       } catch (err) {
         console.error('Error loading custom products from localStorage:', err);
+      }
+
+      // Load custom templates
+      try {
+        const localTplsJson = localStorage.getItem('infistyle_custom_templates');
+        if (localTplsJson) {
+          setTemplatesList(JSON.parse(localTplsJson));
+        } else {
+          setTemplatesList([]);
+        }
+      } catch (err) {
+        console.error('Error loading custom templates:', err);
       }
 
       setProductsList(allProds);
@@ -446,6 +474,136 @@ export default function AdminDashboard() {
     setTimeout(() => setToast(''), 3000);
   };
 
+  // Template Manager Handlers
+  const handleOpenTemplatesManager = (prod: ManageProduct) => {
+    setActiveProductForTemplates(prod);
+    handleResetTemplateForm();
+    setShowTemplatesModal(true);
+  };
+
+  const handleOpenEditTemplate = (tpl: any) => {
+    setTemplateEditMode(true);
+    setActiveTemplateId(tpl.id);
+    setFormTemplateName(tpl.name);
+    setFormTemplateColor(tpl.color);
+    setFormTemplateOrientation(tpl.orientation);
+    setFormTemplateIndustry(tpl.industry);
+    setFormTemplateTheme(tpl.theme);
+    setFormTemplateCanvasJson(tpl.canvasJson);
+    setFormTemplateThumbnail(tpl.thumbnail || '');
+  };
+
+  const handleResetTemplateForm = () => {
+    setTemplateEditMode(false);
+    setActiveTemplateId(null);
+    setFormTemplateName('');
+    setFormTemplateColor('White');
+    setFormTemplateOrientation('Horizontal');
+    setFormTemplateIndustry('Corporate');
+    setFormTemplateTheme('Minimal');
+    setFormTemplateCanvasJson('{"objects":[]}');
+    setFormTemplateThumbnail('');
+  };
+
+  const handleTemplateThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormTemplateThumbnail(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeProductForTemplates) return;
+
+    const payload = {
+      id: templateEditMode && activeTemplateId ? activeTemplateId : 'tpl_' + Math.random().toString(36).substr(2, 9),
+      productSlug: activeProductForTemplates.slug,
+      name: formTemplateName,
+      color: formTemplateColor,
+      orientation: formTemplateOrientation,
+      industry: formTemplateIndustry,
+      theme: formTemplateTheme,
+      canvasJson: formTemplateCanvasJson,
+      thumbnail: formTemplateThumbnail || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=400&q=80'
+    };
+
+    try {
+      const localTplsJson = localStorage.getItem('infistyle_custom_templates');
+      let localTpls = localTplsJson ? JSON.parse(localTplsJson) : [];
+
+      if (templateEditMode && activeTemplateId) {
+        const idx = localTpls.findIndex((t: any) => t.id === activeTemplateId);
+        if (idx > -1) {
+          localTpls[idx] = payload;
+        }
+      } else {
+        localTpls.push(payload);
+      }
+
+      localStorage.setItem('infistyle_custom_templates', JSON.stringify(localTpls));
+      setTemplatesList(localTpls);
+
+      // Try Supabase Fallback (fails silently if table doesn't exist)
+      const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                          process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-url.supabase.co';
+      if (hasSupabase) {
+        try {
+          if (templateEditMode && activeTemplateId) {
+            await supabase.from('templates').update(payload).eq('id', activeTemplateId);
+          } else {
+            await supabase.from('templates').insert(payload);
+          }
+        } catch (dbErr) {
+          console.warn('Supabase templates sync skipped:', dbErr);
+        }
+      }
+
+      setToast(templateEditMode ? 'Template updated successfully.' : 'New template added.');
+      handleResetTemplateForm();
+      setTimeout(() => setToast(''), 3000);
+    } catch (err) {
+      console.error(err);
+      setToast('Failed to save template.');
+      setTimeout(() => setToast(''), 3000);
+    }
+  };
+
+  const handleDeleteTemplate = async (tplId: string) => {
+    if (!confirm('Are you sure you want to delete this template?')) return;
+
+    try {
+      const localTplsJson = localStorage.getItem('infistyle_custom_templates');
+      if (localTplsJson) {
+        const localTpls = JSON.parse(localTplsJson);
+        const filtered = localTpls.filter((t: any) => t.id !== tplId);
+        localStorage.setItem('infistyle_custom_templates', JSON.stringify(filtered));
+        setTemplatesList(filtered);
+      }
+
+      // Try Supabase Fallback (fails silently if table doesn't exist)
+      const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+                          process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder-url.supabase.co';
+      if (hasSupabase) {
+        try {
+          await supabase.from('templates').delete().eq('id', tplId);
+        } catch (dbErr) {
+          console.warn('Supabase templates delete skipped:', dbErr);
+        }
+      }
+
+      setToast('Template deleted.');
+      setTimeout(() => setToast(''), 3000);
+    } catch (err) {
+      console.error(err);
+      setToast('Failed to delete template.');
+      setTimeout(() => setToast(''), 3000);
+    }
+  };
+
   // Metrics
   const totalRevenue = orders.reduce((acc, o) => acc + o.total, 0);
   const pendingCount = orders.filter(o => o.status !== 'delivered').length;
@@ -674,6 +832,12 @@ export default function AdminDashboard() {
                         )}
                       </td>
                       <td className="py-3 text-right flex items-center justify-end gap-3.5">
+                        <button
+                          onClick={() => handleOpenTemplatesManager(prod)}
+                          className="text-xs text-primary hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                        >
+                          <Layers className="h-3.5 w-3.5" /> Templates
+                        </button>
                         <button
                           onClick={() => handleOpenEditProduct(prod)}
                           className="text-xs text-primary hover:underline font-bold flex items-center gap-1 cursor-pointer"
@@ -918,6 +1082,258 @@ export default function AdminDashboard() {
               </div>
 
             </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* Templates Manager Modal */}
+      {showTemplatesModal && activeProductForTemplates && (
+        <div className="fixed inset-0 bg-dark-charcoal/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-4xl bg-white border-4 border-primary rounded-3xl p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+            
+            <div className="flex justify-between items-center pb-3 border-b border-yellow-100 mb-6">
+              <div>
+                <h3 className="text-lg font-black text-dark-charcoal uppercase tracking-wider">
+                  Manage Templates
+                </h3>
+                <p className="text-xs text-gray-500 font-semibold mt-0.5">
+                  Product: <span className="text-primary font-bold">{activeProductForTemplates.name}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowTemplatesModal(false);
+                  setActiveProductForTemplates(null);
+                }}
+                className="text-gray-400 hover:text-dark-charcoal font-black text-lg cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left Side: Current Templates List */}
+              <div className="space-y-4">
+                <h4 className="font-extrabold text-xs text-dark-charcoal uppercase tracking-wide border-b border-yellow-100 pb-2">
+                  Existing Templates ({templatesList.filter(t => t.productSlug === activeProductForTemplates.slug).length})
+                </h4>
+
+                <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+                  {templatesList.filter(t => t.productSlug === activeProductForTemplates.slug).map((tpl) => (
+                    <div key={tpl.id} className="flex gap-4 p-3 border border-yellow-100 rounded-2xl hover:bg-yellow-50/10 items-center justify-between">
+                      <div className="flex gap-3 items-center">
+                        <div className="h-14 w-20 bg-zinc-100 border border-zinc-200 rounded-lg overflow-hidden flex-shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={tpl.thumbnail} alt={tpl.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="text-xs font-bold text-gray-600">
+                          <p className="font-extrabold text-dark-charcoal text-sm leading-tight line-clamp-1">{tpl.name}</p>
+                          <p className="text-[10px] mt-0.5 text-gray-400">
+                            Color: {tpl.color} | {tpl.orientation} | {tpl.industry} | {tpl.theme}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditTemplate(tpl)}
+                          className="p-1.5 border border-primary hover:bg-primary rounded-lg text-dark-charcoal cursor-pointer"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteTemplate(tpl.id)}
+                          className="p-1.5 border border-red-200 hover:border-red-500 rounded-lg text-red-500 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {templatesList.filter(t => t.productSlug === activeProductForTemplates.slug).length === 0 && (
+                    <div className="text-center py-12 text-xs text-gray-400 font-semibold border border-dashed border-gray-200 rounded-2xl">
+                      No custom templates added yet. Fill out the form to add one.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Side: Add/Edit Form */}
+              <div className="border-t lg:border-t-0 lg:border-l border-yellow-100 pt-6 lg:pt-0 lg:pl-6">
+                <form onSubmit={handleSaveTemplate} className="space-y-4">
+                  <h4 className="font-extrabold text-xs text-dark-charcoal uppercase tracking-wide border-b border-yellow-100 pb-2">
+                    {templateEditMode ? 'Modify Template' : 'Add New Template'}
+                  </h4>
+
+                  {/* Template Name */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-black uppercase text-gray-500">Template Name*</label>
+                    <input
+                      type="text"
+                      required
+                      value={formTemplateName}
+                      onChange={(e) => setFormTemplateName(e.target.value)}
+                      className="input-brand text-xs py-2 font-bold"
+                      placeholder="E.g. Vintage Bold Red Card"
+                    />
+                  </div>
+
+                  {/* Color & Orientation */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black uppercase text-gray-500">Color Palette*</label>
+                      <select
+                        value={formTemplateColor}
+                        onChange={(e) => setFormTemplateColor(e.target.value)}
+                        className="input-brand text-xs py-2 font-bold"
+                      >
+                        {['White', 'Black', 'Yellow', 'Blue', 'Red', 'Green', 'Orange', 'Kraft'].map(c => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black uppercase text-gray-500">Orientation*</label>
+                      <select
+                        value={formTemplateOrientation}
+                        onChange={(e) => setFormTemplateOrientation(e.target.value as any)}
+                        className="input-brand text-xs py-2 font-bold"
+                      >
+                        <option value="Horizontal">Horizontal</option>
+                        <option value="Vertical">Vertical</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Industry & Theme */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black uppercase text-gray-500">Industry*</label>
+                      <select
+                        value={formTemplateIndustry}
+                        onChange={(e) => setFormTemplateIndustry(e.target.value)}
+                        className="input-brand text-xs py-2 font-bold"
+                      >
+                        {['Corporate', 'Wedding', 'Medical', 'Creative', 'Tech', 'Retail', 'Education', 'Food & Dining'].map(ind => (
+                          <option key={ind} value={ind}>{ind}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[9px] font-black uppercase text-gray-500">Theme Style*</label>
+                      <select
+                        value={formTemplateTheme}
+                        onChange={(e) => setFormTemplateTheme(e.target.value)}
+                        className="input-brand text-xs py-2 font-bold"
+                      >
+                        {['Minimal', 'Elegant', 'Bold', 'Vintage', 'Modern', 'Colorful'].map(th => (
+                          <option key={th} value={th}>{th}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Canvas JSON Layout */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[9px] font-black uppercase text-gray-500">Canvas JSON Layout (FabricJS)*</label>
+                    </div>
+                    <textarea
+                      required
+                      value={formTemplateCanvasJson}
+                      onChange={(e) => setFormTemplateCanvasJson(e.target.value)}
+                      className="input-brand text-xs py-2 h-20 font-mono font-bold"
+                      placeholder='{"objects":[]}'
+                    />
+                  </div>
+
+                  {/* Template Thumbnail Manager */}
+                  <div className="space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[9px] font-black uppercase text-gray-400 tracking-wider">TEMPLATE PREVIEW THUMBNAIL*</label>
+                      <div>
+                        <input
+                          type="file"
+                          id="admin-template-file-picker"
+                          accept="image/*"
+                          onChange={handleTemplateThumbnailUpload}
+                          className="hidden"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById('admin-template-file-picker')?.click()}
+                          className="text-[11px] font-extrabold uppercase text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          + UPLOAD THUMBNAIL
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      <div className="h-10 w-10 bg-zinc-50 border border-zinc-200 rounded flex-shrink-0 flex items-center justify-center text-zinc-400">
+                        {formTemplateThumbnail ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={formTemplateThumbnail} alt="prev" className="h-full w-full object-cover rounded" />
+                        ) : (
+                          <ImageIcon className="h-5 w-5" />
+                        )}
+                      </div>
+                      {formTemplateThumbnail.startsWith('data:') ? (
+                        <input
+                          type="text"
+                          readOnly
+                          value="[Device File: Ready to Save]"
+                          className="input-brand text-[10px] py-1.5 flex-grow font-bold bg-yellow-50/10 cursor-not-allowed text-primary"
+                        />
+                      ) : (
+                        <input
+                          type="url"
+                          value={formTemplateThumbnail}
+                          onChange={(e) => setFormTemplateThumbnail(e.target.value)}
+                          placeholder="Paste thumbnail URL or upload file"
+                          className="input-brand text-[10px] py-1.5 flex-grow font-bold"
+                        />
+                      )}
+                      {formTemplateThumbnail && (
+                        <button
+                          type="button"
+                          onClick={() => setFormTemplateThumbnail('')}
+                          className="p-1.5 border border-red-200 hover:border-red-500 rounded-lg text-red-500 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Form Actions */}
+                  <div className="pt-4 border-t border-yellow-100 flex gap-4">
+                    {templateEditMode && (
+                      <button
+                        type="button"
+                        onClick={handleResetTemplateForm}
+                        className="flex-1 btn-secondary text-xs py-2"
+                      >
+                        Cancel Edit
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      className="flex-grow btn-primary text-xs py-2 uppercase font-black"
+                    >
+                      {templateEditMode ? 'Save Template Changes' : 'Add Template'}
+                    </button>
+                  </div>
+
+                </form>
+              </div>
+            </div>
 
           </div>
         </div>
